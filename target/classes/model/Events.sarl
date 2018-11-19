@@ -1,0 +1,39 @@
+/** 
+ * 
+ */
+package model
+
+import view.Sarl3DView
+import java.util.List
+
+/** 
+ * @author morzzan
+ * 
+ */
+event StartEvent{
+	var fx : Sarl3DView
+	new(fx : Sarl3DView){
+		this.fx=fx
+	}
+}
+event EndEvent 
+event RegisterEvent{
+	var nb : int
+	new(nb : int){
+		this.nb = nb
+	}
+}
+event PerceptEvent{
+	var pos : Vector3D
+	var around : List<Vector3D>
+	new(pos : Vector3D, around : List<Vector3D> = <Vector3D> newArrayList()){
+		this.pos = pos
+		this.around = around
+	}
+}
+event GoThatWay{
+	var direction : Vector3D
+	new(direction : Vector3D){
+		this.direction = direction
+	}
+}

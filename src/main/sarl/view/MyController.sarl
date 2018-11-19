@@ -1,0 +1,17 @@
+/** 
+ * 
+ */
+package view
+
+import io.sarl.javafx.FxViewerController
+import javafx.^event.Event
+
+/** 
+ * @author morzzan
+ * 
+ */
+class MyController extends FxViewerController {
+	def _receiveEvent(e : Event) {
+		println("event received")
+	}
+}

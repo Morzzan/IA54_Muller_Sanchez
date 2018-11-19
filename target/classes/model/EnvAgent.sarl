@@ -1,0 +1,81 @@
+/** 
+ * 
+ */
+package model
+
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Destroy
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import java.util.UUID
+import view.Sarl3DView
+import io.sarl.core.Schedules
+
+/** 
+ * @author morzzan
+ */
+agent EnvAgent {
+	var fx : Sarl3DView
+	val nbsteps = 25
+	var step = 0
+	val env = new Environment
+	var nbuavs : int
+	val uavs = <UUID, UAVBody> newHashMap
+	val actions = <GoThatWay> newArrayList
+	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
+
+	on Initialize {
+		info("The EnvAgent was started.")
+		nbuavs = occurrence.parameters.get(0) as Integer
+	}
+	on StartEvent {
+		info("Received Start event")
+		fx = occurrence.fx
+		for (var i = 0; i < nbuavs; i++) {
+			spawn(typeof(UAVAgent), i)	
+		}			
+	}
+	on RegisterEvent{
+		var bdy = new UAVBody(occurrence.source.UUID, occurrence.nb)
+		uavs.put(occurrence.source.UUID,bdy)
+		fx.registerUAV(bdy)
+		if(uavs.size == nbuavs) sendPercepts
+	}
+	on GoThatWay{
+		actions.add(occurrence)
+		if(actions.size == nbuavs){
+			in(250)[runstep]		
+		}
+	}
+	on Destroy{
+		emit(new EndEvent)
+	}
+	
+	def sendPercepts{
+		for(uav : uavs.values){
+			emit(new PerceptEvent(uav.pos, getNeighbors(uav)))[it.UUID == uav.id]
+		}
+	}
+	def getNeighbors(uav : UAVBody){
+		var around = <Vector3D>newArrayList
+		for(n : uavs.values){
+			if(n.pos.add(uav.pos.times(-1)).norm < uav.perceptRadius && n != uav) around.add(n.pos)
+		}
+		return around
+	}
+	def runstep{
+		if(step >= nbsteps) killMe
+		step++
+		for(action : actions){
+			var actorBody = uavs.get(action.source.UUID)
+			actorBody.accelerate(action.direction)
+		}
+		for(uav : uavs.values){
+			uav.move
+		}
+		fx.moveUAVs(uavs.values)
+		actions.clear
+		sendPercepts
+	}	
+}

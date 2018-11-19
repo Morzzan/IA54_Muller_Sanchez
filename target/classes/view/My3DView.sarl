@@ -1,0 +1,112 @@
+/** 
+ * 
+ */
+package view
+
+import java.util.concurrent.CountDownLatch
+import javafx.application.Application
+import javafx.scene.Group
+import javafx.scene.PerspectiveCamera
+import javafx.scene.Scene
+import javafx.scene.paint.Color
+import javafx.scene.paint.PhongMaterial
+import javafx.scene.shape.Box
+import javafx.scene.shape.DrawMode
+import javafx.stage.Stage
+import javafx.^event.EventType
+import javafx.^event.EventHandler
+import javafx.stage.WindowEvent
+
+/** 
+ * @author morzzan
+ * 
+ */
+class My3DView extends Application {
+	var OPTIONS_ALL = MyEvent.eventtype;
+	public var box1 = new Box();
+	public var box2 = new Box();
+	val static latch = new CountDownLatch(1);
+    var static me : My3DView = null;
+    var st : Stage = null
+
+	def static waitForStartUpTest() {
+        try {
+            latch.await();
+		} catch (e : InterruptedException) {
+            e.printStackTrace();
+        }
+        return me;
+    }
+	def start(stage : Stage) { 
+		me = this
+		st = stage
+		var handler = new EventHandler<WindowEvent>(){
+			 @Override
+    		def handle(e : WindowEvent) {
+				box1.fireEvent(new MyEvent)
+			}
+		}
+		st.onShowing = handler
+      
+      
+      //Setting the properties of the Box 
+      box1.setWidth(100.0); 
+      box1.setHeight(100.0);   
+      box1.setDepth(100.0); 
+      
+      //Setting the position of the box 
+      box1.setTranslateX(200); 
+      box1.setTranslateY(150); 
+      box1.setTranslateZ(0);
+      
+      //Setting the drawing mode of the box 
+		box1.setDrawMode(DrawMode.FILL);
+		var redMaterial = new PhongMaterial();
+		redMaterial.setSpecularColor(Color.ORANGE);
+		redMaterial.setDiffuseColor(Color.RED);
+      	box1.material = redMaterial
+       
+      	box1.addEventHandler(OPTIONS_ALL)[animate]
+      //Drawing a Box 
+      
+      //Setting the properties of the Box 
+      box2.setWidth(100.0); 
+      box2.setHeight(100.0);   
+      box2.setDepth(100.0); 
+      
+      //Setting the position of the box 
+      box2.setTranslateX(450); //450 
+      box2.setTranslateY(150);//150 
+      box2.setTranslateZ(300); 
+  
+      //Setting the drawing mode of the box 
+      box2.setDrawMode(DrawMode.FILL);     
+         
+      //Creating a Group object   
+      var root = new Group(box1, box2); 
+         
+      //Creating a scene object 
+      var scene = new Scene(root, 600, 300); 
+       
+      //Setting camera 
+      var camera = new PerspectiveCamera(false); 
+      camera.setTranslateX(0); 
+      camera.setTranslateY(0); 
+      camera.setTranslateZ(0); 
+      scene.setCamera(camera);  
+      
+      //Setting title to the Stage 
+      stage.setTitle("Drawing a Box"); 
+         
+      //Adding scene to the stage 
+      stage.setScene(scene);
+      
+      //Displaying the contents of the stage 
+      stage.show(); 
+      
+   }   
+   def animate {
+   		box1.relocate(1,1)
+   		println("Dans Animate")
+   }   
+}

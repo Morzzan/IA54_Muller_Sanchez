@@ -1,0 +1,130 @@
+/** 
+ * 
+ */
+package view
+
+import io.sarl.javafx.FxApplication
+import io.sarl.util.OpenEventSpace
+import java.util.UUID
+import javafx.fxml.FXMLLoader
+import javafx.geometry.Point3D
+import javafx.scene.Camera
+import javafx.scene.Group
+import javafx.scene.PerspectiveCamera
+import javafx.scene.Scene
+import javafx.scene.paint.Color
+import javafx.scene.paint.PhongMaterial
+import javafx.scene.shape.Box
+import javafx.scene.shape.DrawMode
+import javafx.scene.shape.Shape3D
+import javafx.stage.Stage
+import model.StartEvent
+import model.UAVBody
+import javafx.scene.effect.Light
+import javafx.scene.effect.Light.Distant
+import javafx.scene.PointLight
+
+/** 
+ * @author morzzan
+ * 
+ */
+class Sarl3DView extends FxApplication {
+	var controller = new MyController
+	var grp : Group
+	var scene : Scene
+	var camera : Camera
+	var drones =<Shape3D>newArrayList
+	
+	
+	
+	protected def doApplicationStart(stage : Stage) : FXMLLoader {
+		var nbdrones = Integer.parseInt(parameters.raw.get(0))
+		var sp = GlobalSpace.sp
+		controller.UISpace = sp as OpenEventSpace
+		
+
+		
+		
+      // Setting camera
+		grp = new Group()
+		for(var i = 0;i<nbdrones;i++){
+			grp.children.add(new Group(makedrone))
+		}
+		scene = new Scene(grp, 600, 300);
+		
+		camera = new PerspectiveCamera(false);
+		
+		camera.translateX = -300;
+		camera.translateY = -150;
+		camera.translateZ = 0;
+		//camera.rotationAxis = new Point3D(-1,0,0)
+		//camera.rotate = 45
+		//camera.rotationAxis = new Point3D(0, 1, 0)
+		//camera.rotate = 180
+		
+		scene.setCamera(camera);
+
+		// Setting title to the Stage
+		stage.setTitle("Drawing a Box");
+
+		// Adding scene to the stage
+		stage.setScene(scene);
+
+		//Displaying the contents of the stage 
+		stage.show();
+		controller.emitToAgents(new StartEvent(this))
+      	return null
+	}
+	def moveUAVs(uavs : Iterable<UAVBody>) {
+		for (uav : uavs) {
+			drones.get(uav.nb).translateX = uav.pos.x
+			drones.get(uav.nb).translateY = uav.pos.y
+			drones.get(uav.nb).translateZ = uav.pos.z
+		}
+	}
+	def registerUAV(uav : UAVBody){
+		var box = drones.get(uav.nb)	
+		box.translateX = uav.pos.x
+		box.translateY = uav.pos.y
+		box.translateZ = uav.pos.z
+	}
+	def makeGround {
+		var box1 = new Box
+
+		box1.setWidth(300.0);
+		box1.setHeight(300.0);
+		box1.setDepth(1.0);
+
+		box1.translateX = 0
+		box1.translateY = 0
+		box1.translateZ = 0
+
+		box1.setDrawMode(DrawMode.FILL);
+		var blueMaterial = new PhongMaterial();
+		blueMaterial.setSpecularColor(Color.BLUE);
+		//blueMaterial.setDiffuseColor(Color.BLANCHEDALMOND);
+		box1.material = blueMaterial
+		return box1
+	}
+	def makedrone(){
+		
+		var box = new Box()
+		box.setWidth(10.0);
+		box.setHeight(10.0);
+		box.setDepth(10.0);
+
+		box.translateX = 0
+		box.translateY =0
+		box.translateZ = 0
+
+		box.setDrawMode(DrawMode.FILL);
+		var redMaterial = new PhongMaterial();
+		redMaterial.setSpecularColor(Color.ORANGE);
+		redMaterial.setDiffuseColor(Color.RED);
+		box.material = redMaterial
+		drones.add(box)
+		return box
+
+	}
+
+}

@@ -1,0 +1,33 @@
+/** 
+ * 
+ */
+package model
+
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import io.sarl.core.Schedules
+import io.sarl.javafx.FxApplication
+import view.GlobalSpace
+import view.Sarl3DView
+
+import static view.GlobalSpace.*
+
+/** 
+ * @author morzzan
+ * 
+ */
+agent BootAgent {
+	uses Logging, Lifecycle, Schedules, DefaultContextInteractions
+
+	val nbdrones = 3
+
+	on Initialize {
+		info("The Boot agent was started.")
+		spawn(typeof(EnvAgent), nbdrones)
+		GlobalSpace.sp= defaultSpace
+		FxApplication.launch(Sarl3DView, nbdrones.toString)
+		killMe
+	}	
+}

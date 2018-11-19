@@ -1,0 +1,18 @@
+/** 
+ * 
+ */
+package view
+
+import javafx.^event.Event
+import javafx.^event.EventType
+
+/** 
+ * @author morzzan
+ * 
+ */
+class MyEvent extends Event {
+	public static val eventtype = new EventType<MyEvent>("OPTIONS_ALL")
+	new{
+		super(eventtype)
+	}
+}
