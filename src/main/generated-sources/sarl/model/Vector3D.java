@@ -57,6 +57,17 @@ public class Vector3D {
   }
   
   @Pure
+  public Vector3D unitarize() {
+    double _norm = this.norm();
+    double _divide = (this.x / _norm);
+    double _norm_1 = this.norm();
+    double _divide_1 = (this.y / _norm_1);
+    double _norm_2 = this.norm();
+    double _divide_2 = (this.z / _norm_2);
+    return new Vector3D(_divide, _divide_1, _divide_2);
+  }
+  
+  @Pure
   public Vector3D times(final double k) {
     return new Vector3D((this.x * k), (this.y * k), (this.z * k));
   }
@@ -66,20 +77,17 @@ public class Vector3D {
     return (((((("(" + Integer.valueOf(((int) this.x))) + ",") + Integer.valueOf(((int) this.y))) + ",") + Integer.valueOf(((int) this.z))) + ")");
   }
   
-  public Vector3D randomDirection() {
+  public static Vector3D randomDirection() {
+    Vector3D v = new Vector3D();
     final Random rd = new Random();
     double _nextDouble = rd.nextDouble();
     double _minus = (_nextDouble - 0.5);
-    this.x = _minus;
+    v.x = _minus;
     double _nextDouble_1 = rd.nextDouble();
     double _minus_1 = (_nextDouble_1 - 0.5);
-    this.y = _minus_1;
-    this.z = 0;
-    final double n = this.norm();
-    this.x = (this.x / n);
-    this.y = (this.y / n);
-    this.z = (this.z / n);
-    return this;
+    v.y = _minus_1;
+    v.z = 0;
+    return v.unitarize();
   }
   
   @Override

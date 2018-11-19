@@ -14,6 +14,8 @@ import java.util.Random
  * 
  */
 agent UAVAgent {
+	var rd = new Random
+	var currentPercept : PerceptEvent
 	uses Logging, DefaultContextInteractions, Lifecycle
 	var nb : int
 	on Initialize {
@@ -23,35 +25,32 @@ agent UAVAgent {
 		emit(new RegisterEvent(nb))
 	}
 	on PerceptEvent {
-		info("Env told me I'm at " + occurrence.pos)
-		if(occurrence.around.size != 0)moveRandomly//move(separation(occurrence))
-		else moveRandomly
+		info("Env told me I'm at " + occurrence.pos+ " and i see "+ occurrence.around.size + " drones")
+		currentPercept = occurrence
+		moveRandomly
 	}
 	on EndEvent{	
 			killMe
-	}
+	} 
 	
 	def moveRandomly{
-		emit(new GoThatWay((new Vector3D).randomDirection()))
+		move(Vector3D.randomDirection())
 	}
 
 	def move(v : Vector3D) : void{
-		emit(new GoThatWay(v))
+		emit(new GoThatWay(v.add(separation)))
 	}
-	def separation(percept : PerceptEvent) {
-		var rd = new Random
+	def separation{
 		var vSep = new Vector3D(0,0,0)
-		for (o : percept.around) {
-			var n = o.add(percept.pos.times(-1))
-			if (n.norm <= 1) {
-				
-				
-				//info(new Vector3D(rd.nextDouble-1,rd.nextDouble-1,0).toString)
-				}
+		for (o : currentPercept.around) {
+			var n = o.add(currentPercept.pos.times(-1))
+			if (n.norm === 0) {	
+				n= Vector3D.randomDirection
 			}
-			
-			//vSep.add(n.times(-1/n.norm))
-		return vSep.normalize
+			var a = n.unitarize.times(-100 / Math.pow(n.norm, 2))
+			vSep = vSep.add(a)	
+		}
+		return vSep
 	}
 }
 

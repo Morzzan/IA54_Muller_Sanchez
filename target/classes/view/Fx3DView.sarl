@@ -19,6 +19,7 @@ import javafx.scene.shape.Shape3D
 import javafx.stage.Stage
 import model.StartEvent
 import model.UAVBody
+
 /** 
  * @author morzzan
  * 
@@ -29,8 +30,7 @@ class Fx3DView extends FxApplication {
 	var grp : Group
 	var scene : Scene
 	var camera : Camera
-	var drones =<Shape3D>newArrayList
-	
+	var drones =<Shape3D>newArrayList 
 	
 	
 	protected def doApplicationStart(stage : Stage) : FXMLLoader {
@@ -47,7 +47,8 @@ class Fx3DView extends FxApplication {
 		}
 		scene = new Scene(grp, 600, 300);
 		
-		camera = new PerspectiveCamera(false);
+		camera = new PerspectiveCamera;
+		camera.farClip = 1000
 		
 		camera.translateX = -300;
 		camera.translateY = -150;
@@ -60,7 +61,7 @@ class Fx3DView extends FxApplication {
 		scene.setCamera(camera);
 
 		// Setting title to the Stage
-		stage.setTitle("Drawing a Box");
+		stage.setTitle("See the drones");
 
 		// Adding scene to the stage
 		stage.setScene(scene);

@@ -44,21 +44,21 @@ class Vector3D {
 	def normalize{
 		return times(1/norm)
 	}
+	def unitarize{
+		return new Vector3D(x/norm,y/norm,z/norm)
+	}
 	def times(k : double){
 		return new Vector3D(x*k,y*k,z*k)
 	}
 	def toString{
 		return "("+x as int+","+y as int+","+z as int+")"
 	}
-	def randomDirection(){
+	static def randomDirection(){
+		var v = new Vector3D
 		val rd = new Random
-		x = rd.nextDouble-0.5
-		y = rd.nextDouble -0.5
-		z = 0
-		val n = norm
-		x = x/n
-		y = y/n
-		z = z/n 
-		return this
+		v.x = rd.nextDouble-0.5
+		v.y = rd.nextDouble -0.5
+		v.z = 0 
+		return v.unitarize
 	}
 }

@@ -26,7 +26,7 @@ public class UAVBody {
   private UUID id;
   
   @Accessors(AccessorType.PUBLIC_GETTER)
-  private Vector3D pos = new Vector3D(0, 0, 10);
+  private Vector3D pos = new Vector3D(0, 0, 0);
   
   @Accessors(AccessorType.PUBLIC_GETTER)
   private Vector3D speed = new Vector3D(0, 0, 0);
@@ -47,9 +47,9 @@ public class UAVBody {
       double _norm = v.norm();
       boolean _lessThan = (_norm < this.maxSpeed);
       if (_lessThan) {
-        double _norm_1 = v.norm();
-        double _divide = (this.maxSpeed / _norm_1);
-        _xifexpression = this.speed = v.times(_divide);
+        _xifexpression = this.speed = v;
+      } else {
+        _xifexpression = this.speed = v.unitarize().times(this.maxSpeed);
       }
       _xblockexpression = _xifexpression;
     }

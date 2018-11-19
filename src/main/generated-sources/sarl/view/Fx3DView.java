@@ -55,13 +55,14 @@ public class Fx3DView extends FxApplication {
     }
     Scene _scene = new Scene(this.grp, 600, 300);
     this.scene = _scene;
-    PerspectiveCamera _perspectiveCamera = new PerspectiveCamera(false);
+    PerspectiveCamera _perspectiveCamera = new PerspectiveCamera();
     this.camera = _perspectiveCamera;
+    this.camera.setFarClip(1000);
     this.camera.setTranslateX((-300));
     this.camera.setTranslateY((-150));
     this.camera.setTranslateZ(0);
     this.scene.setCamera(this.camera);
-    stage.setTitle("Drawing a Box");
+    stage.setTitle("See the drones");
     stage.setScene(this.scene);
     stage.show();
     StartEvent _startEvent = new StartEvent(this);

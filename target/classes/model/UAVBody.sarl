@@ -19,7 +19,7 @@ class UAVBody {
 	var id : UUID
 
 	@Accessors(PUBLIC_GETTER)
-	var pos = new Vector3D(0, 0,10)
+	var pos = new Vector3D(0, 0,0)
 
 	@Accessors(PUBLIC_GETTER)
 	var speed = new Vector3D(0, 0, 0)
@@ -33,7 +33,8 @@ class UAVBody {
 	}
 	def accelerate(a : Vector3D){
 		var v = speed.add(a)
-		if(v.norm < maxSpeed) speed = v.times(maxSpeed/v.norm)
+		if(v.norm < maxSpeed) speed = v
+		else speed = v.unitarize.times(maxSpeed)
 	}
 	def move{
 		pos = pos.add(speed)

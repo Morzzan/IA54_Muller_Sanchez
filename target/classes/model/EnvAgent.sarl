@@ -17,7 +17,7 @@ import io.sarl.core.Schedules
  */
 agent EnvAgent {
 	var fx : Fx3DView
-	val nbsteps = 25
+	val nbsteps = 50
 	var step = 0
 	val env = new Environment
 	var nbuavs : int
@@ -40,11 +40,13 @@ agent EnvAgent {
 		var bdy = new UAVBody(occurrence.source.UUID, occurrence.nb)
 		uavs.put(occurrence.source.UUID,bdy)
 		fx.registerUAV(bdy)
-		if(uavs.size == nbuavs) sendPercepts
+		if(uavs.size == nbuavs) {
+			in(250)[sendPercepts]	
+		}
 	}
 	on GoThatWay{
 		actions.add(occurrence)
-		if(actions.size == nbuavs){
+		if(actions.size === nbuavs){
 			in(250)[runstep]		
 		}
 	}

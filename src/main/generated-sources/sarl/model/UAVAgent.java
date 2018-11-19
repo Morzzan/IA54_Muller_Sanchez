@@ -34,6 +34,10 @@ import org.eclipse.xtext.xbase.lib.Pure;
 @SarlElementType(18)
 @SuppressWarnings("all")
 public class UAVAgent extends Agent {
+  private Random rd = new Random();
+  
+  private PerceptEvent currentPercept;
+  
   private int nb;
   
   private void $behaviorUnit$Initialize$0(final Initialize occurrence) {
@@ -52,14 +56,12 @@ public class UAVAgent extends Agent {
   
   private void $behaviorUnit$PerceptEvent$1(final PerceptEvent occurrence) {
     Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info(("Env told me I\'m at " + occurrence.pos));
     int _size = occurrence.around.size();
-    boolean _notEquals = (_size != 0);
-    if (_notEquals) {
-      this.moveRandomly();
-    } else {
-      this.moveRandomly();
-    }
+    String _plus = ((("Env told me I\'m at " + occurrence.pos) + " and i see ") + Integer.valueOf(_size));
+    String _plus_1 = (_plus + " drones");
+    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info(_plus_1);
+    this.currentPercept = occurrence;
+    this.moveRandomly();
   }
   
   private void $behaviorUnit$EndEvent$2(final EndEvent occurrence) {
@@ -68,31 +70,34 @@ public class UAVAgent extends Agent {
   }
   
   protected void moveRandomly() {
-    DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
-    Vector3D _randomDirection = new Vector3D().randomDirection();
-    GoThatWay _goThatWay = new GoThatWay(_randomDirection);
-    _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_goThatWay);
+    this.move(Vector3D.randomDirection());
   }
   
   protected void move(final Vector3D v) {
     DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
-    GoThatWay _goThatWay = new GoThatWay(v);
+    Vector3D _add = v.add(this.separation());
+    GoThatWay _goThatWay = new GoThatWay(_add);
     _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_goThatWay);
   }
   
-  protected Vector3D separation(final PerceptEvent percept) {
-    Random rd = new Random();
+  protected Vector3D separation() {
     Vector3D vSep = new Vector3D(0, 0, 0);
-    for (final Vector3D o : percept.around) {
+    for (final Vector3D o : this.currentPercept.around) {
       {
-        Vector3D n = o.add(percept.pos.times((-1)));
+        Vector3D n = o.add(this.currentPercept.pos.times((-1)));
         double _norm = n.norm();
-        boolean _lessEqualsThan = (_norm <= 1);
-        if (_lessEqualsThan) {
+        boolean _tripleEquals = (_norm == 0);
+        if (_tripleEquals) {
+          n = Vector3D.randomDirection();
         }
+        Vector3D _unitarize = n.unitarize();
+        double _pow = Math.pow(n.norm(), 2);
+        double _divide = ((-100) / _pow);
+        Vector3D a = _unitarize.times(_divide);
+        vSep = vSep.add(a);
       }
     }
-    return vSep.normalize();
+    return vSep;
   }
   
   @Extension

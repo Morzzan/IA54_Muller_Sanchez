@@ -49,7 +49,7 @@ import view.Fx3DView;
 public class EnvAgent extends Agent {
   private Fx3DView fx;
   
-  private final int nbsteps = 25;
+  private final int nbsteps = 50;
   
   private int step = 0;
   
@@ -86,15 +86,19 @@ public class EnvAgent extends Agent {
     int _size = this.uavs.size();
     boolean _equals = (_size == this.nbuavs);
     if (_equals) {
-      this.sendPercepts();
+      Schedules _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER = this.$castSkill(Schedules.class, (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = this.$getSkill(Schedules.class)) : this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
+      final Procedure1<Agent> _function = (Agent it) -> {
+        this.sendPercepts();
+      };
+      _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER.in(250, _function);
     }
   }
   
   private void $behaviorUnit$GoThatWay$3(final GoThatWay occurrence) {
     this.actions.add(occurrence);
     int _size = this.actions.size();
-    boolean _equals = (_size == this.nbuavs);
-    if (_equals) {
+    boolean _tripleEquals = (_size == this.nbuavs);
+    if (_tripleEquals) {
       Schedules _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER = this.$castSkill(Schedules.class, (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = this.$getSkill(Schedules.class)) : this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
       final Procedure1<Agent> _function = (Agent it) -> {
         this.runstep();
