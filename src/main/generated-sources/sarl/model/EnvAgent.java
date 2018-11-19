@@ -38,7 +38,7 @@ import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Inline;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.eclipse.xtext.xbase.lib.Pure;
-import view.Sarl3DView;
+import view.Fx3DView;
 
 /**
  * @author morzzan
@@ -47,7 +47,7 @@ import view.Sarl3DView;
 @SarlElementType(18)
 @SuppressWarnings("all")
 public class EnvAgent extends Agent {
-  private Sarl3DView fx;
+  private Fx3DView fx;
   
   private final int nbsteps = 25;
   

@@ -6,7 +6,7 @@ import io.sarl.lang.annotation.SyntheticMember;
 import io.sarl.lang.core.Event;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
-import view.Sarl3DView;
+import view.Fx3DView;
 
 /**
  * @author morzzan
@@ -15,9 +15,9 @@ import view.Sarl3DView;
 @SarlElementType(15)
 @SuppressWarnings("all")
 public class StartEvent extends Event {
-  public Sarl3DView fx;
+  public Fx3DView fx;
   
-  public StartEvent(final Sarl3DView fx) {
+  public StartEvent(final Fx3DView fx) {
     this.fx = fx;
   }
   
@@ -47,5 +47,5 @@ public class StartEvent extends Event {
   }
   
   @SyntheticMember
-  private final static long serialVersionUID = -730678185L;
+  private final static long serialVersionUID = 236064151L;
 }

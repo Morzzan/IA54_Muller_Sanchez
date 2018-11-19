@@ -9,14 +9,14 @@ import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
 import java.util.UUID
-import view.Sarl3DView
+import view.Fx3DView
 import io.sarl.core.Schedules
 
 /** 
  * @author morzzan
  */
 agent EnvAgent {
-	var fx : Sarl3DView
+	var fx : Fx3DView
 	val nbsteps = 25
 	var step = 0
 	val env = new Environment

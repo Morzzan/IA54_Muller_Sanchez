@@ -22,7 +22,6 @@ import model.StartEvent;
 import model.UAVBody;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Pure;
-import view.GlobalSpace;
 import view.MyController;
 
 /**
@@ -31,7 +30,9 @@ import view.MyController;
 @SarlSpecification("0.8")
 @SarlElementType(10)
 @SuppressWarnings("all")
-public class Sarl3DView extends FxApplication {
+public class Fx3DView extends FxApplication {
+  public static EventSpace sp;
+  
   private MyController controller = new MyController();
   
   private Group grp;
@@ -44,8 +45,7 @@ public class Sarl3DView extends FxApplication {
   
   protected FXMLLoader doApplicationStart(final Stage stage) {
     int nbdrones = Integer.parseInt(this.getParameters().getRaw().get(0));
-    EventSpace sp = GlobalSpace.sp;
-    this.controller.setUISpace(((OpenEventSpace) sp));
+    this.controller.setUISpace(((OpenEventSpace) Fx3DView.sp));
     Group _group = new Group();
     this.grp = _group;
     for (int i = 0; (i < nbdrones); i++) {
@@ -137,7 +137,7 @@ public class Sarl3DView extends FxApplication {
   }
   
   @SyntheticMember
-  public Sarl3DView() {
+  public Fx3DView() {
     super();
   }
 }

@@ -3,7 +3,6 @@ package view;
 import io.sarl.lang.annotation.SarlElementType;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
-import io.sarl.lang.core.EventSpace;
 
 /**
  * @author morzzan
@@ -12,8 +11,6 @@ import io.sarl.lang.core.EventSpace;
 @SarlElementType(10)
 @SuppressWarnings("all")
 public class GlobalSpace {
-  public static EventSpace sp;
-  
   @SyntheticMember
   public GlobalSpace() {
     super();

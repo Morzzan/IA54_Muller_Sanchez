@@ -4,10 +4,9 @@
 package view
 
 import io.sarl.javafx.FxApplication
+import io.sarl.lang.core.EventSpace
 import io.sarl.util.OpenEventSpace
-import java.util.UUID
 import javafx.fxml.FXMLLoader
-import javafx.geometry.Point3D
 import javafx.scene.Camera
 import javafx.scene.Group
 import javafx.scene.PerspectiveCamera
@@ -20,15 +19,12 @@ import javafx.scene.shape.Shape3D
 import javafx.stage.Stage
 import model.StartEvent
 import model.UAVBody
-import javafx.scene.effect.Light
-import javafx.scene.effect.Light.Distant
-import javafx.scene.PointLight
-
 /** 
  * @author morzzan
  * 
  */
-class Sarl3DView extends FxApplication {
+class Fx3DView extends FxApplication {
+	static public var sp : EventSpace
 	var controller = new MyController
 	var grp : Group
 	var scene : Scene
@@ -39,8 +35,7 @@ class Sarl3DView extends FxApplication {
 	
 	protected def doApplicationStart(stage : Stage) : FXMLLoader {
 		var nbdrones = Integer.parseInt(parameters.raw.get(0))
-		var sp = GlobalSpace.sp
-		controller.UISpace = sp as OpenEventSpace
+		controller.UISpace = Fx3DView.sp as OpenEventSpace
 		
 
 		

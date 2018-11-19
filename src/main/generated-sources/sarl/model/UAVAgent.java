@@ -56,7 +56,7 @@ public class UAVAgent extends Agent {
     int _size = occurrence.around.size();
     boolean _notEquals = (_size != 0);
     if (_notEquals) {
-      this.move(this.separation(occurrence));
+      this.moveRandomly();
     } else {
       this.moveRandomly();
     }
@@ -80,7 +80,6 @@ public class UAVAgent extends Agent {
     _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_goThatWay);
   }
   
-  @Pure
   protected Vector3D separation(final PerceptEvent percept) {
     Random rd = new Random();
     Vector3D vSep = new Vector3D(0, 0, 0);

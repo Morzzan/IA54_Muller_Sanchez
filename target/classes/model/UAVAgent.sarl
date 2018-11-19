@@ -7,7 +7,6 @@ import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
-import java.util.Vector
 import java.util.Random
 
 /** 
@@ -25,7 +24,7 @@ agent UAVAgent {
 	}
 	on PerceptEvent {
 		info("Env told me I'm at " + occurrence.pos)
-		if(occurrence.around.size != 0)move(separation(occurrence))
+		if(occurrence.around.size != 0)moveRandomly//move(separation(occurrence))
 		else moveRandomly
 	}
 	on EndEvent{	

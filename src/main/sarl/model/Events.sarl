@@ -3,7 +3,7 @@
  */
 package model
 
-import view.Sarl3DView
+import view.Fx3DView
 import java.util.List
 
 /** 
@@ -11,8 +11,8 @@ import java.util.List
  * 
  */
 event StartEvent{
-	var fx : Sarl3DView
-	new(fx : Sarl3DView){
+	var fx : Fx3DView
+	new(fx : Fx3DView){
 		this.fx=fx
 	}
 }

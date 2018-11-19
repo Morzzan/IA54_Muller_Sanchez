@@ -10,5 +10,5 @@ import io.sarl.lang.core.EventSpace
  * 
  */
 class GlobalSpace extends Object {
-	static public var sp : EventSpace
+	
 }
