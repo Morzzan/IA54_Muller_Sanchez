@@ -19,7 +19,7 @@ import static view.Fx3DView.*
 agent BootAgent {
 	uses Logging, Lifecycle, DefaultContextInteractions
 
-	val nbdrones = 5
+	val nbdrones = 20
 
 	on Initialize {
 		info("The Boot agent was started.")

@@ -10,7 +10,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @author morzzan
  * 
  */
-class UAVBody {
+class UAVBody extends SituatedObject{
 	@Accessors(PUBLIC_GETTER)
 	val perceptRadius = 50
 	
@@ -19,7 +19,7 @@ class UAVBody {
 	var id : UUID
 
 	@Accessors(PUBLIC_GETTER)
-	var pos = new Vector3D(0, 0,0)
+	var pos = new Vector3D(0,0,0)
 
 	@Accessors(PUBLIC_GETTER)
 	var speed = new Vector3D(0, 0, 0)

@@ -1,0 +1,16 @@
+/** 
+ * 
+ */
+package skillscapacities
+
+import model.Vector3D
+
+/** 
+ * @author morzzan
+ * 
+ */
+capacity MoveCapacity {
+	def move(direction : Vector3D)
+	def moveRandomly
+	def goToBase
+}

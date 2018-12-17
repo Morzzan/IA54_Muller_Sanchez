@@ -14,6 +14,7 @@ import javafx.scene.Scene
 import javafx.scene.paint.Color
 import javafx.scene.paint.PhongMaterial
 import javafx.scene.shape.Box
+import javafx.scene.shape.Sphere
 import javafx.scene.shape.DrawMode
 import javafx.scene.shape.Shape3D
 import javafx.stage.Stage
@@ -40,25 +41,13 @@ class Fx3DView extends FxApplication {
 
 		
 		
-      // Setting camera
 		grp = new Group()
 		for(var i = 0;i<nbdrones;i++){
 			grp.children.add(new Group(makedrone))
 		}
 		scene = new Scene(grp, 600, 300);
+		setCamera
 		
-		camera = new PerspectiveCamera;
-		camera.farClip = 1000
-		
-		camera.translateX = -300;
-		camera.translateY = -150;
-		camera.translateZ = 0;
-		//camera.rotationAxis = new Point3D(-1,0,0)
-		//camera.rotate = 45
-		//camera.rotationAxis = new Point3D(0, 1, 0)
-		//camera.rotate = 180
-		
-		scene.setCamera(camera);
 
 		// Setting title to the Stage
 		stage.setTitle("See the drones");
@@ -104,10 +93,9 @@ class Fx3DView extends FxApplication {
 	}
 	def makedrone(){
 		
-		var box = new Box()
-		box.setWidth(10.0);
-		box.setHeight(10.0);
-		box.setDepth(10.0);
+		var box = new Sphere
+		box.radius=5
+
 
 		box.translateX = 0
 		box.translateY =0
@@ -121,6 +109,19 @@ class Fx3DView extends FxApplication {
 		drones.add(box)
 		return box
 
+	}
+	def setCamera {
+		camera = new PerspectiveCamera;
+		camera.farClip = 1000
+
+		camera.translateX = -300;
+		camera.translateY = -150;
+		camera.translateZ = 0;
+		// camera.rotationAxis = new Point3D(-1,0,0)
+		// camera.rotate = 45
+		// camera.rotationAxis = new Point3D(0, 1, 0)
+		// camera.rotate = 180
+		scene.setCamera(camera);
 	}
 
 }

@@ -20,12 +20,18 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 public class PerceptEvent extends Event {
   public Vector3D pos;
   
+  public boolean onZone;
+  
   public List<Vector3D> around;
   
+  public Vector3D speed;
+  
   @DefaultValueSource
-  public PerceptEvent(final Vector3D pos, @DefaultValue("model.PerceptEvent#NEW_0") final List<Vector3D> around) {
+  public PerceptEvent(final Vector3D pos, final Vector3D speed, @DefaultValue("model.PerceptEvent#NEW_0") final List<Vector3D> around, final boolean onZone) {
     this.pos = pos;
     this.around = around;
+    this.onZone = onZone;
+    this.speed = speed;
   }
   
   /**
@@ -35,16 +41,25 @@ public class PerceptEvent extends Event {
   @SarlSourceCode("<Vector3D> newArrayList()")
   private final static List $DEFAULT_VALUE$NEW_0 = CollectionLiterals.<Vector3D>newArrayList();
   
-  @DefaultValueUse("model.Vector3D,java.util.List<model.Vector3D>")
+  @DefaultValueUse("model.Vector3D,model.Vector3D,java.util.List<model.Vector3D>,boolean")
   @SyntheticMember
-  public PerceptEvent(final Vector3D pos) {
-    this(pos, $DEFAULT_VALUE$NEW_0);
+  public PerceptEvent(final Vector3D pos, final Vector3D speed, final boolean onZone) {
+    this(pos, speed, $DEFAULT_VALUE$NEW_0, onZone);
   }
   
   @Override
   @Pure
   @SyntheticMember
   public boolean equals(final Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    PerceptEvent other = (PerceptEvent) obj;
+    if (other.onZone != this.onZone)
+      return false;
     return super.equals(obj);
   }
   
@@ -53,6 +68,8 @@ public class PerceptEvent extends Event {
   @SyntheticMember
   public int hashCode() {
     int result = super.hashCode();
+    final int prime = 31;
+    result = prime * result + (this.onZone ? 1231 : 1237);
     return result;
   }
   
@@ -64,9 +81,11 @@ public class PerceptEvent extends Event {
   protected void toString(final ToStringBuilder builder) {
     super.toString(builder);
     builder.add("pos", this.pos);
+    builder.add("onZone", this.onZone);
     builder.add("around", this.around);
+    builder.add("speed", this.speed);
   }
   
   @SyntheticMember
-  private final static long serialVersionUID = 533775990L;
+  private final static long serialVersionUID = 4475019830L;
 }

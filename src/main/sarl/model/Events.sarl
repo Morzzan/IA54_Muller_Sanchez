@@ -25,10 +25,14 @@ event RegisterEvent{
 }
 event PerceptEvent{
 	var pos : Vector3D
+	var onZone : boolean
 	var around : List<Vector3D>
-	new(pos : Vector3D, around : List<Vector3D> = <Vector3D> newArrayList()){
+	var speed : Vector3D
+	new(pos : Vector3D,speed : Vector3D, around : List<Vector3D> = <Vector3D> newArrayList(),onZone : boolean){
 		this.pos = pos
 		this.around = around
+		this.onZone = onZone
+		this.speed=speed
 	}
 }
 event GoThatWay{

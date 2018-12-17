@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 import javax.inject.Inject;
 import model.EndEvent;
 import model.Environment;
@@ -34,6 +35,7 @@ import model.UAVAgent;
 import model.UAVBody;
 import model.Vector3D;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
+import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Inline;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
@@ -49,7 +51,7 @@ import view.Fx3DView;
 public class EnvAgent extends Agent {
   private Fx3DView fx;
   
-  private final int nbsteps = 50;
+  private final int nbsteps = 200;
   
   private int step = 0;
   
@@ -61,9 +63,13 @@ public class EnvAgent extends Agent {
   
   private final ArrayList<GoThatWay> actions = CollectionLiterals.<GoThatWay>newArrayList();
   
+  private final Semaphore sem = new Semaphore(1);
+  
   private void $behaviorUnit$Initialize$0(final Initialize occurrence) {
     Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
     _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("The EnvAgent was started.");
+    Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1.setLoggingName("Env");
     Object _get = occurrence.parameters[0];
     this.nbuavs = (((Integer) _get)).intValue();
   }
@@ -82,28 +88,31 @@ public class EnvAgent extends Agent {
     UUID _uUID = occurrence.getSource().getUUID();
     UAVBody bdy = new UAVBody(_uUID, occurrence.nb);
     this.uavs.put(occurrence.getSource().getUUID(), bdy);
-    this.fx.registerUAV(bdy);
     int _size = this.uavs.size();
-    boolean _equals = (_size == this.nbuavs);
-    if (_equals) {
-      Schedules _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER = this.$castSkill(Schedules.class, (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = this.$getSkill(Schedules.class)) : this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
-      final Procedure1<Agent> _function = (Agent it) -> {
-        this.sendPercepts();
-      };
-      _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER.in(250, _function);
+    boolean _greaterEqualsThan = (_size >= this.nbuavs);
+    if (_greaterEqualsThan) {
+      this.sendPercepts();
     }
   }
   
   private void $behaviorUnit$GoThatWay$3(final GoThatWay occurrence) {
-    this.actions.add(occurrence);
-    int _size = this.actions.size();
-    boolean _tripleEquals = (_size == this.nbuavs);
-    if (_tripleEquals) {
-      Schedules _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER = this.$castSkill(Schedules.class, (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = this.$getSkill(Schedules.class)) : this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
-      final Procedure1<Agent> _function = (Agent it) -> {
-        this.runstep();
-      };
-      _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER.in(250, _function);
+    try {
+      this.sem.acquire();
+      this.actions.add(occurrence);
+      int _size = this.actions.size();
+      boolean _tripleEquals = (_size == this.nbuavs);
+      if (_tripleEquals) {
+        this.sem.release();
+        Schedules _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER = this.$castSkill(Schedules.class, (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = this.$getSkill(Schedules.class)) : this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
+        final Procedure1<Agent> _function = (Agent it) -> {
+          this.runstep();
+        };
+        _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER.in(50, _function);
+      } else {
+        this.sem.release();
+      }
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
     }
   }
   
@@ -118,8 +127,10 @@ public class EnvAgent extends Agent {
     for (final UAVBody uav : _values) {
       DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
       Vector3D _pos = uav.getPos();
-      ArrayList<Vector3D> _neighbors = this.getNeighbors(uav);
-      PerceptEvent _perceptEvent = new PerceptEvent(_pos, _neighbors);
+      Vector3D _speed = uav.getSpeed();
+      ArrayList<Vector3D> _newArrayList = CollectionLiterals.<Vector3D>newArrayList();
+      boolean _isOnZone = this.env.isOnZone(uav);
+      PerceptEvent _perceptEvent = new PerceptEvent(_pos, _speed, _newArrayList, _isOnZone);
       final Scope<Address> _function = (Address it) -> {
         UUID _uUID = it.getUUID();
         UUID _id = uav.getId();

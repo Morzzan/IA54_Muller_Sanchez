@@ -1,0 +1,19 @@
+/** 
+ * 
+ */
+package Agents
+
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+
+/** 
+ * @author morzzan
+ * 
+ */
+agent BaseAgent {
+	uses Logging
+
+	on Initialize {
+		info("The agent was started.")
+	}
+}

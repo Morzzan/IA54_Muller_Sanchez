@@ -1,0 +1,14 @@
+/** 
+ * 
+ */
+package model
+
+import org.eclipse.xtend.lib.annotations.Accessors
+/** 
+ * @author morzzan
+ * 
+ */
+class SituatedObject {
+	@Accessors(PUBLIC_GETTER, PUBLIC_SETTER)
+	var pos : Vector3D
+}

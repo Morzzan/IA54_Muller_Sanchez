@@ -11,22 +11,25 @@ import io.sarl.core.Logging
 import java.util.UUID
 import view.Fx3DView
 import io.sarl.core.Schedules
+import java.util.concurrent.Semaphore
 
 /** 
  * @author morzzan
  */
 agent EnvAgent {
 	var fx : Fx3DView
-	val nbsteps = 50
+	val nbsteps = 200
 	var step = 0
 	val env = new Environment
 	var nbuavs : int
 	val uavs = <UUID, UAVBody> newHashMap
 	val actions = <GoThatWay> newArrayList
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
+	val sem = new Semaphore(1)
 
 	on Initialize {
 		info("The EnvAgent was started.")
+		loggingName = "Env"
 		nbuavs = occurrence.parameters.get(0) as Integer
 	}
 	on StartEvent {
@@ -39,16 +42,19 @@ agent EnvAgent {
 	on RegisterEvent{
 		var bdy = new UAVBody(occurrence.source.UUID, occurrence.nb)
 		uavs.put(occurrence.source.UUID,bdy)
-		fx.registerUAV(bdy)
-		if(uavs.size == nbuavs) {
-			in(250)[sendPercepts]	
+		if(uavs.size >= nbuavs){
+			sendPercepts
 		}
+
 	}
 	on GoThatWay{
+		sem.acquire
 		actions.add(occurrence)
 		if(actions.size === nbuavs){
-			in(250)[runstep]		
+			sem.release
+			in(50)[runstep]
 		}
+		else sem.release
 	}
 	on Destroy{
 		emit(new EndEvent)
@@ -56,7 +62,7 @@ agent EnvAgent {
 	
 	def sendPercepts{
 		for(uav : uavs.values){
-			emit(new PerceptEvent(uav.pos, getNeighbors(uav)))[it.UUID == uav.id]
+			emit(new PerceptEvent(uav.pos, uav.speed ,<Vector3D>newArrayList, env.isOnZone(uav)))[it.UUID == uav.id]
 		}
 	}
 	def getNeighbors(uav : UAVBody){

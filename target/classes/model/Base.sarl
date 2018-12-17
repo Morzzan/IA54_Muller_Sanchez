@@ -1,0 +1,11 @@
+/** 
+ * 
+ */
+package model
+
+/** 
+ * @author morzzan
+ * 
+ */
+class Base extends SituatedObject {
+}

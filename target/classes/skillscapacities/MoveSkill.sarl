@@ -1,0 +1,57 @@
+/** 
+ * 
+ */
+package skillscapacities
+
+import model.Vector3D
+import model.PerceptEvent
+import java.util.List
+import io.sarl.core.DefaultContextInteractions
+import model.GoThatWay
+import io.sarl.core.Logging
+
+/** 
+ * @author morzzan
+ * 
+ */
+skill MoveSkill implements MoveCapacity {
+	uses DefaultContextInteractions, Logging
+	var percepts : List<PerceptEvent>
+	
+	new(percepts : List<PerceptEvent>){
+		this.percepts = percepts
+	}
+	
+	override move(direction : Vector3D) {
+		emit(new GoThatWay(direction.add(separation).stayOnZone))
+	}
+	override moveRandomly {
+		move(Vector3D.randomDirection())
+	}
+
+	override goToBase{
+		move(percepts.last.pos.times(-1))
+	}
+
+	def separation {
+		val currentPercept = percepts.last
+		var vSep = new Vector3D(0, 0, 0)
+		for (o : currentPercept.around) {
+			var n = o.add(currentPercept.pos.times(-1))
+			if (n.norm === 0) {
+				n = Vector3D.randomDirection
+			}
+			var a = n.unitarize.times(-100 / Math.pow(n.norm, 2))
+			vSep = vSep.add(a)
+		}
+		return vSep
+	}
+	def stayOnZone(direction : Vector3D) {
+		val currentPercept = percepts.last
+		if(currentPercept.onZone) return direction
+		else{
+			info("Not On Zone Anymore")
+			return currentPercept.pos.times(-1).unitarize.times(10)
+		}
+	}
+}

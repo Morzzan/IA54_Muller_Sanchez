@@ -1,11 +1,18 @@
-/** 
- * 
- */
 package model
+import model.Base
+import model.UAVBody
+import org.eclipse.xtend.lib.annotations.Accessors
+
+
 /** 
  * @author morzzan
  * 
  */
-class Environment{
+class Environment {
+	@Accessors(PUBLIC_GETTER)
+	var base = new Base
 	
+	def isOnZone(uav : UAVBody){
+		return Math.pow(uav.pos.x,2)-Math.pow(uav.pos.y,2) <= 1000
+	}
 }

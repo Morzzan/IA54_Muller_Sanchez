@@ -14,18 +14,19 @@ import io.sarl.lang.core.BuiltinCapacitiesProvider;
 import io.sarl.lang.core.DynamicSkillProvider;
 import io.sarl.lang.core.Skill;
 import io.sarl.lang.util.ClearableReference;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
 import javax.inject.Inject;
 import model.EndEvent;
-import model.GoThatWay;
 import model.PerceptEvent;
 import model.RegisterEvent;
-import model.Vector3D;
 import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Inline;
 import org.eclipse.xtext.xbase.lib.Pure;
+import skillscapacities.MoveCapacity;
+import skillscapacities.MoveSkill;
 
 /**
  * @author morzzan
@@ -36,13 +37,15 @@ import org.eclipse.xtext.xbase.lib.Pure;
 public class UAVAgent extends Agent {
   private Random rd = new Random();
   
-  private PerceptEvent currentPercept;
+  private final ArrayList<PerceptEvent> percepts = new ArrayList<PerceptEvent>();
   
   private int nb;
   
   private void $behaviorUnit$Initialize$0(final Initialize occurrence) {
     Object _get = occurrence.parameters[0];
     this.nb = (((Integer) _get)).intValue();
+    MoveSkill _moveSkill = new MoveSkill(this.percepts);
+    this.<MoveSkill>setSkill(_moveSkill, MoveCapacity.class);
     Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
     String _string = Integer.valueOf(this.nb).toString();
     String _plus = (" Drone " + _string);
@@ -55,49 +58,14 @@ public class UAVAgent extends Agent {
   }
   
   private void $behaviorUnit$PerceptEvent$1(final PerceptEvent occurrence) {
-    Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-    int _size = occurrence.around.size();
-    String _plus = ((("Env told me I\'m at " + occurrence.pos) + " and i see ") + Integer.valueOf(_size));
-    String _plus_1 = (_plus + " drones");
-    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info(_plus_1);
-    this.currentPercept = occurrence;
-    this.moveRandomly();
+    this.percepts.add(occurrence);
+    MoveCapacity _$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY$CALLER = this.$castSkill(MoveCapacity.class, (this.$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY == null || this.$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY.get() == null) ? (this.$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY = this.$getSkill(MoveCapacity.class)) : this.$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY);
+    _$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY$CALLER.moveRandomly();
   }
   
   private void $behaviorUnit$EndEvent$2(final EndEvent occurrence) {
     Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
     _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.killMe();
-  }
-  
-  protected void moveRandomly() {
-    this.move(Vector3D.randomDirection());
-  }
-  
-  protected void move(final Vector3D v) {
-    DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
-    Vector3D _add = v.add(this.separation());
-    GoThatWay _goThatWay = new GoThatWay(_add);
-    _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_goThatWay);
-  }
-  
-  protected Vector3D separation() {
-    Vector3D vSep = new Vector3D(0, 0, 0);
-    for (final Vector3D o : this.currentPercept.around) {
-      {
-        Vector3D n = o.add(this.currentPercept.pos.times((-1)));
-        double _norm = n.norm();
-        boolean _tripleEquals = (_norm == 0);
-        if (_tripleEquals) {
-          n = Vector3D.randomDirection();
-        }
-        Vector3D _unitarize = n.unitarize();
-        double _pow = Math.pow(n.norm(), 2);
-        double _divide = ((-100) / _pow);
-        Vector3D a = _unitarize.times(_divide);
-        vSep = vSep.add(a);
-      }
-    }
-    return vSep;
   }
   
   @Extension
@@ -143,6 +111,21 @@ public class UAVAgent extends Agent {
       this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = $getSkill(Lifecycle.class);
     }
     return $castSkill(Lifecycle.class, this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
+  }
+  
+  @Extension
+  @ImportedCapacityFeature(MoveCapacity.class)
+  @SyntheticMember
+  private transient ClearableReference<Skill> $CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY;
+  
+  @SyntheticMember
+  @Pure
+  @Inline(value = "$castSkill(MoveCapacity.class, ($0$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY == null || $0$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY.get() == null) ? ($0$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY = $0$getSkill(MoveCapacity.class)) : $0$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY)", imported = MoveCapacity.class)
+  private MoveCapacity $CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY$CALLER() {
+    if (this.$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY == null || this.$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY.get() == null) {
+      this.$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY = $getSkill(MoveCapacity.class);
+    }
+    return $castSkill(MoveCapacity.class, this.$CAPACITY_USE$SKILLSCAPACITIES_MOVECAPACITY);
   }
   
   @SyntheticMember

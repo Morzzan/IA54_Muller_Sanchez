@@ -5,6 +5,7 @@ import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
 import java.util.Objects;
 import java.util.UUID;
+import model.SituatedObject;
 import model.Vector3D;
 import org.eclipse.xtend.lib.annotations.AccessorType;
 import org.eclipse.xtend.lib.annotations.Accessors;
@@ -16,7 +17,7 @@ import org.eclipse.xtext.xbase.lib.Pure;
 @SarlSpecification("0.8")
 @SarlElementType(10)
 @SuppressWarnings("all")
-public class UAVBody {
+public class UAVBody extends SituatedObject {
   @Accessors(AccessorType.PUBLIC_GETTER)
   private final int perceptRadius = 50;
   

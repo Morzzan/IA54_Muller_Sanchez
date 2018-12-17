@@ -17,6 +17,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.Shape3D;
+import javafx.scene.shape.Sphere;
 import javafx.stage.Stage;
 import model.StartEvent;
 import model.UAVBody;
@@ -49,19 +50,13 @@ public class Fx3DView extends FxApplication {
     Group _group = new Group();
     this.grp = _group;
     for (int i = 0; (i < nbdrones); i++) {
-      Box _makedrone = this.makedrone();
+      Sphere _makedrone = this.makedrone();
       Group _group_1 = new Group(_makedrone);
       this.grp.getChildren().add(_group_1);
     }
     Scene _scene = new Scene(this.grp, 600, 300);
     this.scene = _scene;
-    PerspectiveCamera _perspectiveCamera = new PerspectiveCamera();
-    this.camera = _perspectiveCamera;
-    this.camera.setFarClip(1000);
-    this.camera.setTranslateX((-300));
-    this.camera.setTranslateY((-150));
-    this.camera.setTranslateZ(0);
-    this.scene.setCamera(this.camera);
+    this.setCamera();
     stage.setTitle("See the drones");
     stage.setScene(this.scene);
     stage.show();
@@ -105,11 +100,9 @@ public class Fx3DView extends FxApplication {
     return box1;
   }
   
-  public Box makedrone() {
-    Box box = new Box();
-    box.setWidth(10.0);
-    box.setHeight(10.0);
-    box.setDepth(10.0);
+  public Sphere makedrone() {
+    Sphere box = new Sphere();
+    box.setRadius(5);
     box.setTranslateX(0);
     box.setTranslateY(0);
     box.setTranslateZ(0);
@@ -120,6 +113,16 @@ public class Fx3DView extends FxApplication {
     box.setMaterial(redMaterial);
     this.drones.add(box);
     return box;
+  }
+  
+  public void setCamera() {
+    PerspectiveCamera _perspectiveCamera = new PerspectiveCamera();
+    this.camera = _perspectiveCamera;
+    this.camera.setFarClip(1000);
+    this.camera.setTranslateX((-300));
+    this.camera.setTranslateY((-150));
+    this.camera.setTranslateZ(0);
+    this.scene.setCamera(this.camera);
   }
   
   @Override
