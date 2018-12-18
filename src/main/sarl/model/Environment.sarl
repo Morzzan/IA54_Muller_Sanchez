@@ -1,8 +1,11 @@
 package model
-import model.Base
-import model.UAVBody
-import org.eclipse.xtend.lib.annotations.Accessors
 
+import java.util.UUID
+import javafx.geometry.BoundingBox
+import javafx.scene.shape.Shape3D
+import javafx.scene.shape.Sphere
+import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.Random
 
 /** 
  * @author morzzan
@@ -11,8 +14,65 @@ import org.eclipse.xtend.lib.annotations.Accessors
 class Environment {
 	@Accessors(PUBLIC_GETTER)
 	var base = new Base
+	var zone : Shape3D
+	@Accessors(PUBLIC_GETTER)
+	val uavs = <UUID, UAVBody>newHashMap
+	val rd = new Random
+	
+	@Accessors(PUBLIC_GETTER)
+	val survivors = <UUID,Survivor>newHashMap
+	
+	new{
+		var s = new Sphere
+		s.radius = 100
+		s.translateX = 0
+		s.translateY = 0
+		s.translateZ = 0
+		zone = s
+	}
 	
 	def isOnZone(uav : UAVBody){
-		return Math.pow(uav.pos.x,2)-Math.pow(uav.pos.y,2) <= 1000
+		zone.intersects(new BoundingBox(uav.pos.x,uav.pos.y,uav.pos.z,0,0,0))
+	}
+	def makeUAVBody(id : UUID, nb : int){
+		val bdy = new UAVBody(id,nb)
+		uavs.put(id,bdy)
+		return bdy
+	}
+
+	def makeSurvivorBody(id : UUID, nb : int) {
+		val bdy = new Survivor(id,nb,randomPositionInZone)
+		survivors.put(id, bdy)
+		return bdy
+	}
+
+	def getNeighbors(uav : UAVBody) {
+		var around = <Vector3D>newArrayList
+		for (n : uavs.values) {
+			if(n.pos.add(uav.pos.times(-1)).norm < uav.perceptRadius && n != uav) around.add(n.pos)
+		}
+		return around
+	}
+
+	def getSeenUAVs(me : Survivor) {
+		var around = <UUID>newArrayList
+		for (n : uavs.values) {
+			if(n.pos.add(me.pos.times(-1)).norm < me.perceptRadius) around.add(n.id)
+		}
+		return around
+	}
+	def getRandomPositionInZone{
+		return Vector3D.randomDirection.times(rd.nextDouble * (zone as Sphere).radius)
+	}
+	def saveSurvivor(survivorID : UUID){
+		var survivor = survivors.get(survivorID)
+		survivor.rescued=true
+	}
+	def getNbRescuedSurvivors{
+		var nb = 0
+		for(survivor : survivors.values){
+			if(survivor.rescued)nb++
+		}
+		return nb
 	}
 }

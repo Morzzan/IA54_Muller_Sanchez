@@ -10,5 +10,5 @@ import org.eclipse.xtend.lib.annotations.Accessors
  */
 class SituatedObject {
 	@Accessors(PUBLIC_GETTER, PUBLIC_SETTER)
-	var pos : Vector3D
+	var pos : Vector3D = new Vector3D(0,0,0)
 }

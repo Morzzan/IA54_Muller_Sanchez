@@ -16,7 +16,7 @@ import org.eclipse.xtext.xbase.lib.Pure;
 @SuppressWarnings("all")
 public class SituatedObject {
   @Accessors({ AccessorType.PUBLIC_GETTER, AccessorType.PUBLIC_SETTER })
-  private Vector3D pos;
+  private Vector3D pos = new Vector3D(0, 0, 0);
   
   @Override
   @Pure

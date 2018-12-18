@@ -31,16 +31,18 @@ import view.Fx3DView;
 @SarlElementType(18)
 @SuppressWarnings("all")
 public class BootAgent extends Agent {
-  private final int nbdrones = 20;
+  private final int nbdrones = 5;
+  
+  private final int nbSurvivors = 5;
   
   private void $behaviorUnit$Initialize$0(final Initialize occurrence) {
     Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
     _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("The Boot agent was started.");
     Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
-    _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(EnvAgent.class, Integer.valueOf(this.nbdrones));
+    _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(EnvAgent.class, Integer.valueOf(this.nbdrones), Integer.valueOf(this.nbSurvivors));
     DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
     Fx3DView.sp = _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.getDefaultSpace();
-    FxApplication.launch(Fx3DView.class, Integer.valueOf(this.nbdrones).toString());
+    FxApplication.launch(Fx3DView.class, Integer.valueOf(this.nbdrones).toString(), Integer.valueOf(this.nbSurvivors).toString());
     Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER_1 = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
     _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER_1.killMe();
   }
@@ -111,6 +113,8 @@ public class BootAgent extends Agent {
     BootAgent other = (BootAgent) obj;
     if (other.nbdrones != this.nbdrones)
       return false;
+    if (other.nbSurvivors != this.nbSurvivors)
+      return false;
     return super.equals(obj);
   }
   
@@ -121,6 +125,7 @@ public class BootAgent extends Agent {
     int result = super.hashCode();
     final int prime = 31;
     result = prime * result + this.nbdrones;
+    result = prime * result + this.nbSurvivors;
     return result;
   }
   

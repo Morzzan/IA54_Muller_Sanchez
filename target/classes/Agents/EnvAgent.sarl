@@ -8,21 +8,21 @@ import io.sarl.core.Destroy
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
-import java.util.UUID
-import view.Fx3DView
 import io.sarl.core.Schedules
 import java.util.concurrent.Semaphore
+import view.Fx3DView
+import io.sarl.core.AgentSpawned
+import Agents.SurvivorAgent
 
 /** 
  * @author morzzan
  */
 agent EnvAgent {
 	var fx : Fx3DView
-	val nbsteps = 200
 	var step = 0
 	val env = new Environment
 	var nbuavs : int
-	val uavs = <UUID, UAVBody> newHashMap
+	var nbSurvivors : int
 	val actions = <GoThatWay> newArrayList
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
 	val sem = new Semaphore(1)
@@ -31,21 +31,28 @@ agent EnvAgent {
 		info("The EnvAgent was started.")
 		loggingName = "Env"
 		nbuavs = occurrence.parameters.get(0) as Integer
+		nbSurvivors = occurrence.parameters.get(1) as Integer
 	}
 	on StartEvent {
 		info("Received Start event")
 		fx = occurrence.fx
+		for (var i = 0; i < nbSurvivors; i++) {
+			spawn(typeof(SurvivorAgent), i)
+		}
 		for (var i = 0; i < nbuavs; i++) {
-			spawn(typeof(UAVAgent), i)	
+			spawn(typeof(UAVAgent), i,env.base)	
 		}			
 	}
 	on RegisterEvent{
-		var bdy = new UAVBody(occurrence.source.UUID, occurrence.nb)
-		uavs.put(occurrence.source.UUID,bdy)
-		if(uavs.size >= nbuavs){
+		if (occurrence.agentType == typeof(UAVAgent)) {			
+			env.makeUAVBody(occurrence.source.UUID, occurrence.nb)
+		}
+		else {
+			env.makeSurvivorBody(occurrence.source.UUID, occurrence.nb)
+		}
+		if(env.uavs.size >= nbuavs && env.survivors.size >= nbSurvivors){
 			sendPercepts
 		}
-
 	}
 	on GoThatWay{
 		sem.acquire
@@ -56,34 +63,35 @@ agent EnvAgent {
 		}
 		else sem.release
 	}
+	on SurvivorSaved{
+		env.saveSurvivor(occurrence.survivorID)
+	}
 	on Destroy{
+		info("It took "+step+" steps to locate all the survivors in the zone")
 		emit(new EndEvent)
 	}
 	
 	def sendPercepts{
-		for(uav : uavs.values){
-			emit(new PerceptEvent(uav.pos, uav.speed ,<Vector3D>newArrayList, env.isOnZone(uav)))[it.UUID == uav.id]
+		for(uav : env.uavs.values){
+			emit(new PerceptEvent(uav.pos, uav.speed ,env.getNeighbors(uav), env.isOnZone(uav)))[it.UUID == uav.id]
+		}
+		for(survivor : env.survivors.values){
+			var seenUAVs = env.getSeenUAVs(survivor)
+			if(!seenUAVs.empty) emit(new SurvivorPerceptEvent(seenUAVs,survivor.pos))[it.UUID == survivor.id]
 		}
 	}
-	def getNeighbors(uav : UAVBody){
-		var around = <Vector3D>newArrayList
-		for(n : uavs.values){
-			if(n.pos.add(uav.pos.times(-1)).norm < uav.perceptRadius && n != uav) around.add(n.pos)
-		}
-		return around
-	}
-	def runstep{
-		if(step >= nbsteps) killMe
+	def runstep{		
 		step++
 		for(action : actions){
-			var actorBody = uavs.get(action.source.UUID)
+			var actorBody = env.uavs.get(action.source.UUID)
 			actorBody.accelerate(action.direction)
 		}
-		for(uav : uavs.values){
+		for(uav : env.uavs.values){
 			uav.move
 		}
-		fx.moveUAVs(uavs.values)
+		fx.updateObjects(env.uavs.values,env.survivors.values)
 		actions.clear
+		if(nbSurvivors == env.nbRescuedSurvivors) killMe
 		sendPercepts
 	}	
 }

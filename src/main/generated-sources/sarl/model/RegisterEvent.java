@@ -13,8 +13,11 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 public class RegisterEvent extends Event {
   public int nb;
   
-  public RegisterEvent(final int nb) {
+  public Class agentType;
+  
+  public RegisterEvent(final int nb, final Class agentType) {
     this.nb = nb;
+    this.agentType = agentType;
   }
   
   @Override
@@ -51,8 +54,9 @@ public class RegisterEvent extends Event {
   protected void toString(final ToStringBuilder builder) {
     super.toString(builder);
     builder.add("nb", this.nb);
+    builder.add("agentType", this.agentType);
   }
   
   @SyntheticMember
-  private final static long serialVersionUID = 591716921L;
+  private final static long serialVersionUID = -813525644L;
 }

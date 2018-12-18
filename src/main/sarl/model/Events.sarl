@@ -5,6 +5,8 @@ package model
 
 import view.Fx3DView
 import java.util.List
+import java.util.UUID
+import io.sarl.lang.core.Agent
 
 /** 
  * @author morzzan
@@ -19,8 +21,10 @@ event StartEvent{
 event EndEvent 
 event RegisterEvent{
 	var nb : int
-	new(nb : int){
+	var agentType : Class
+	new(nb : int, agentType : Class){
 		this.nb = nb
+		this.agentType = agentType
 	}
 }
 event PerceptEvent{
@@ -35,9 +39,29 @@ event PerceptEvent{
 		this.speed=speed
 	}
 }
+event SurvivorPerceptEvent{
+	var around : List<UUID>
+	var pos : Vector3D
+	new(around :List<UUID>, pos : Vector3D){
+		this.around=around
+		this.pos = pos
+	}
+}
 event GoThatWay{
 	var direction : Vector3D
 	new(direction : Vector3D){
 		this.direction = direction
+	}
+}
+event HelpMe {
+var pos : Vector3D
+new(direction : Vector3D) {
+	this.pos = pos
+	}
+}
+event SurvivorSaved{
+	var survivorID : UUID
+	new(survivorID : UUID){
+		this.survivorID = survivorID
 	}
 }

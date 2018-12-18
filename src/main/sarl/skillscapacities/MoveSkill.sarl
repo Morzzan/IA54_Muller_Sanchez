@@ -24,6 +24,7 @@ skill MoveSkill implements MoveCapacity {
 	
 	override move(direction : Vector3D) {
 		emit(new GoThatWay(direction.add(separation).stayOnZone))
+		percepts.clear
 	}
 	override moveRandomly {
 		move(Vector3D.randomDirection())

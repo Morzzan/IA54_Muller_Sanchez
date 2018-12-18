@@ -27,9 +27,6 @@ public class UAVBody extends SituatedObject {
   private UUID id;
   
   @Accessors(AccessorType.PUBLIC_GETTER)
-  private Vector3D pos = new Vector3D(0, 0, 0);
-  
-  @Accessors(AccessorType.PUBLIC_GETTER)
   private Vector3D speed = new Vector3D(0, 0, 0);
   
   @Accessors(AccessorType.PUBLIC_GETTER)
@@ -58,7 +55,7 @@ public class UAVBody extends SituatedObject {
   }
   
   public void move() {
-    this.pos = this.pos.add(this.speed);
+    this.setPos(this.getPos().add(this.speed));
   }
   
   @Override
@@ -105,11 +102,6 @@ public class UAVBody extends SituatedObject {
   @Pure
   public UUID getId() {
     return this.id;
-  }
-  
-  @Pure
-  public Vector3D getPos() {
-    return this.pos;
   }
   
   @Pure

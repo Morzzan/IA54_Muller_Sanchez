@@ -20,7 +20,10 @@ import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
 import javafx.stage.Stage;
 import model.StartEvent;
+import model.Survivor;
 import model.UAVBody;
+import org.eclipse.xtend.lib.annotations.AccessorType;
+import org.eclipse.xtend.lib.annotations.Accessors;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Pure;
 import view.MyController;
@@ -36,24 +39,24 @@ public class Fx3DView extends FxApplication {
   
   private MyController controller = new MyController();
   
-  private Group grp;
+  private Group grp = new Group();
   
   private Scene scene;
   
   private Camera camera;
   
+  @Accessors(AccessorType.PUBLIC_GETTER)
   private ArrayList<Shape3D> drones = CollectionLiterals.<Shape3D>newArrayList();
+  
+  @Accessors(AccessorType.PUBLIC_GETTER)
+  private ArrayList<Shape3D> survivors = CollectionLiterals.<Shape3D>newArrayList();
   
   protected FXMLLoader doApplicationStart(final Stage stage) {
     int nbdrones = Integer.parseInt(this.getParameters().getRaw().get(0));
+    int nbSurvivors = Integer.parseInt(this.getParameters().getRaw().get(1));
     this.controller.setUISpace(((OpenEventSpace) Fx3DView.sp));
-    Group _group = new Group();
-    this.grp = _group;
-    for (int i = 0; (i < nbdrones); i++) {
-      Sphere _makedrone = this.makedrone();
-      Group _group_1 = new Group(_makedrone);
-      this.grp.getChildren().add(_group_1);
-    }
+    this.makeDrones(nbdrones);
+    this.makeSurvivors(nbSurvivors);
     Scene _scene = new Scene(this.grp, 600, 300);
     this.scene = _scene;
     this.setCamera();
@@ -65,7 +68,7 @@ public class Fx3DView extends FxApplication {
     return null;
   }
   
-  public void moveUAVs(final Iterable<UAVBody> uavs) {
+  public void updateObjects(final Iterable<UAVBody> uavs, final Iterable<Survivor> survivors) {
     for (final UAVBody uav : uavs) {
       {
         Shape3D _get = this.drones.get(uav.getNb());
@@ -76,6 +79,21 @@ public class Fx3DView extends FxApplication {
         _get_2.setTranslateZ(uav.getPos().getZ());
       }
     }
+    for (final Survivor survivor : survivors) {
+      {
+        Shape3D box = this.survivors.get(survivor.getNb());
+        box.setTranslateX(survivor.getPos().getX());
+        box.setTranslateY(survivor.getPos().getY());
+        box.setTranslateZ(survivor.getPos().getZ());
+        boolean _isRescued = survivor.isRescued();
+        if (_isRescued) {
+          PhongMaterial gray = new PhongMaterial();
+          gray.setSpecularColor(Color.GRAY);
+          gray.setDiffuseColor(Color.GRAY);
+          box.setMaterial(gray);
+        }
+      }
+    }
   }
   
   public void registerUAV(final UAVBody uav) {
@@ -83,6 +101,13 @@ public class Fx3DView extends FxApplication {
     box.setTranslateX(uav.getPos().getX());
     box.setTranslateY(uav.getPos().getY());
     box.setTranslateZ(uav.getPos().getZ());
+  }
+  
+  public void registerSurvivor(final Survivor survivor) {
+    Shape3D box = this.survivors.get(survivor.getNb());
+    box.setTranslateX(survivor.getPos().getX());
+    box.setTranslateY(survivor.getPos().getY());
+    box.setTranslateZ(survivor.getPos().getZ());
   }
   
   public Box makeGround() {
@@ -96,23 +121,49 @@ public class Fx3DView extends FxApplication {
     box1.setDrawMode(DrawMode.FILL);
     PhongMaterial blueMaterial = new PhongMaterial();
     blueMaterial.setSpecularColor(Color.BLUE);
+    blueMaterial.setDiffuseColor(Color.BLANCHEDALMOND);
     box1.setMaterial(blueMaterial);
     return box1;
   }
   
-  public Sphere makedrone() {
-    Sphere box = new Sphere();
-    box.setRadius(5);
-    box.setTranslateX(0);
-    box.setTranslateY(0);
-    box.setTranslateZ(0);
-    box.setDrawMode(DrawMode.FILL);
-    PhongMaterial redMaterial = new PhongMaterial();
-    redMaterial.setSpecularColor(Color.ORANGE);
-    redMaterial.setDiffuseColor(Color.RED);
-    box.setMaterial(redMaterial);
-    this.drones.add(box);
-    return box;
+  public void makeDrones(final int nbDrones) {
+    for (int i = 0; (i < nbDrones); i++) {
+      {
+        Sphere box = new Sphere();
+        box.setRadius(5);
+        box.setTranslateX(0);
+        box.setTranslateY(0);
+        box.setTranslateZ(0);
+        box.setDrawMode(DrawMode.FILL);
+        PhongMaterial blueMaterial = new PhongMaterial();
+        blueMaterial.setSpecularColor(Color.BLUE);
+        blueMaterial.setDiffuseColor(Color.BLANCHEDALMOND);
+        box.setMaterial(blueMaterial);
+        this.drones.add(box);
+        Group _group = new Group(box);
+        this.grp.getChildren().add(_group);
+      }
+    }
+  }
+  
+  public void makeSurvivors(final int nbSurvivors) {
+    for (int i = 0; (i < nbSurvivors); i++) {
+      {
+        Sphere box = new Sphere();
+        box.setRadius(5);
+        box.setTranslateX(0);
+        box.setTranslateY(0);
+        box.setTranslateZ(0);
+        box.setDrawMode(DrawMode.FILL);
+        PhongMaterial redMaterial = new PhongMaterial();
+        redMaterial.setSpecularColor(Color.ORANGE);
+        redMaterial.setDiffuseColor(Color.RED);
+        box.setMaterial(redMaterial);
+        this.survivors.add(box);
+        Group _group = new Group(box);
+        this.grp.getChildren().add(_group);
+      }
+    }
   }
   
   public void setCamera() {
@@ -143,5 +194,15 @@ public class Fx3DView extends FxApplication {
   @SyntheticMember
   public Fx3DView() {
     super();
+  }
+  
+  @Pure
+  public ArrayList<Shape3D> getDrones() {
+    return this.drones;
+  }
+  
+  @Pure
+  public ArrayList<Shape3D> getSurvivors() {
+    return this.survivors;
   }
 }

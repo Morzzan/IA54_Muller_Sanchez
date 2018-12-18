@@ -21,20 +21,24 @@ agent UAVAgent {
 	val percepts = new  ArrayList<PerceptEvent>
 	uses Logging, DefaultContextInteractions, Lifecycle, MoveCapacity
 	var nb : int
+	var base : Base
 	on Initialize {
 		nb = occurrence.parameters.get(0) as Integer
+		base = occurrence.parameters.get(1) as Base
 		setSkill(new MoveSkill(percepts),MoveCapacity)
 		loggingName = " Drone " + nb.toString
 		info("The UAV was started.")
-		emit(new RegisterEvent(nb))
+		emit(new RegisterEvent(nb,typeof(UAVAgent)))
 	}
 	on PerceptEvent {
-		//info("Env told me I'm at " + occurrence.pos+ " and i see "+ occurrence.around.size + " drones")
 		percepts.add(occurrence)
 		moveRandomly
 	}
 	on EndEvent{	
 			killMe
 	} 
+	on HelpMe{
+		emit(new SurvivorSaved(occurrence.source.UUID))
+	}
 }
 

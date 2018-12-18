@@ -37,6 +37,7 @@ public class MoveSkill extends Skill implements MoveCapacity {
     Vector3D _stayOnZone = this.stayOnZone(direction.add(this.separation()));
     GoThatWay _goThatWay = new GoThatWay(_stayOnZone);
     _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_goThatWay);
+    this.percepts.clear();
   }
   
   @Override
