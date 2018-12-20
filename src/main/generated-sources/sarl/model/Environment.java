@@ -1,6 +1,10 @@
 package model;
 
 import com.google.common.base.Objects;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
 import io.sarl.lang.annotation.SarlElementType;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
@@ -9,9 +13,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
-import javafx.geometry.BoundingBox;
-import javafx.scene.shape.Shape3D;
-import javafx.scene.shape.Sphere;
 import model.Base;
 import model.Survivor;
 import model.UAVBody;
@@ -31,7 +32,7 @@ public class Environment {
   @Accessors(AccessorType.PUBLIC_GETTER)
   private Base base = new Base();
   
-  private Shape3D zone;
+  private Polygon zone;
   
   @Accessors(AccessorType.PUBLIC_GETTER)
   private final HashMap<UUID, UAVBody> uavs = CollectionLiterals.<UUID, UAVBody>newHashMap();
@@ -42,21 +43,25 @@ public class Environment {
   private final HashMap<UUID, Survivor> survivors = CollectionLiterals.<UUID, Survivor>newHashMap();
   
   public Environment() {
-    Sphere s = new Sphere();
-    s.setRadius(100);
-    s.setTranslateX(0);
-    s.setTranslateY(0);
-    s.setTranslateZ(0);
-    this.zone = s;
+    GeometricShapeFactory shapeFactory = new GeometricShapeFactory();
+    Coordinate _coordinate = new Coordinate(0, 0);
+    shapeFactory.setCentre(_coordinate);
+    shapeFactory.setNumPoints(128);
+    shapeFactory.setSize(200);
+    this.zone = shapeFactory.createCircle();
   }
   
   @Pure
   public boolean isOnZone(final UAVBody uav) {
-    double _x = uav.getPos().getX();
-    double _y = uav.getPos().getY();
-    double _z = uav.getPos().getZ();
-    BoundingBox _boundingBox = new BoundingBox(_x, _y, _z, 0, 0, 0);
-    return this.zone.intersects(_boundingBox);
+    boolean _xblockexpression = false;
+    {
+      GeometryFactory factory = new GeometryFactory();
+      double _x = uav.getPos().getX();
+      double _y = uav.getPos().getY();
+      Coordinate _coordinate = new Coordinate(_x, _y);
+      _xblockexpression = this.zone.intersects(factory.createPoint(_coordinate));
+    }
+    return _xblockexpression;
   }
   
   public UAVBody makeUAVBody(final UUID id, final int nb) {
@@ -103,8 +108,7 @@ public class Environment {
   public Vector3D getRandomPositionInZone() {
     Vector3D _randomDirection = Vector3D.randomDirection();
     double _nextDouble = this.rd.nextDouble();
-    double _radius = ((Sphere) this.zone).getRadius();
-    double _multiply = (_nextDouble * _radius);
+    double _multiply = (_nextDouble * 100);
     return _randomDirection.times(_multiply);
   }
   

@@ -50,6 +50,7 @@ public class MoveSkill extends Skill implements MoveCapacity {
     this.move(IterableExtensions.<PerceptEvent>last(this.percepts).pos.times((-1)));
   }
   
+  @Pure
   public Vector3D separation() {
     final PerceptEvent currentPercept = IterableExtensions.<PerceptEvent>last(this.percepts);
     Vector3D vSep = new Vector3D(0, 0, 0);
