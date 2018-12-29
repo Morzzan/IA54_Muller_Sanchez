@@ -15,6 +15,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 class Environment {
 	@Accessors(PUBLIC_GETTER)
 	var base = new Base
+	@Accessors(PUBLIC_GETTER)
 	var zone : Polygon
 	@Accessors(PUBLIC_GETTER)
 	val uavs = <UUID, UAVBody>newHashMap
@@ -35,21 +36,21 @@ class Environment {
 		var factory = new GeometryFactory
 		zone.intersects(factory.createPoint(new Coordinate(uav.pos.x, uav.pos.y)))
 	}
-	def makeUAVBody(id : UUID, nb : int){
+	def synchronized makeUAVBody(id : UUID, nb : int){
 		val bdy = new UAVBody(id,nb)
 		uavs.put(id,bdy)
 		return bdy
 	}
-	def makeSurvivorBody(id : UUID, nb : int) {
-		val bdy = new Survivor(id,nb,randomPositionInZone)
+	def synchronized makeSurvivorBody(id : UUID, nb : int) {
+		val bdy = new Survivor(id,nb,Utils.getRandomPositionInZone(zone))
 		survivors.put(id, bdy)
 		return bdy
 	}
 
 	def getNeighbors(uav : UAVBody) {
-		var around = <Vector3D>newArrayList
+		var around = <UAVBody>newArrayList
 		for (n : uavs.values) {
-			if(n.pos.add(uav.pos.times(-1)).norm < uav.perceptRadius && n != uav) around.add(n.pos)
+			if(n.pos.add(uav.pos.times(-1)).norm < Utils.perceptRadius && n != uav) around.add(n)
 		}
 		return around
 	}
@@ -57,13 +58,11 @@ class Environment {
 	def getSeenUAVs(me : Survivor) {
 		var around = <UUID>newArrayList
 		for (n : uavs.values) {
-			if(n.pos.add(me.pos.times(-1)).norm < me.perceptRadius) around.add(n.id)
+			if(n.pos.add(me.pos.times(-1)).norm < Utils.perceptRadius) around.add(n.id)
 		}
 		return around
 	}
-	def getRandomPositionInZone{
-		return Vector3D.randomDirection.times(rd.nextDouble * 100)
-	}
+	
 	def saveSurvivor(survivorID : UUID){
 		var survivor = survivors.get(survivorID)
 		survivor.rescued=true

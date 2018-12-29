@@ -7,6 +7,7 @@ import view.Fx3DView
 import java.util.List
 import java.util.UUID
 import io.sarl.lang.core.Agent
+import com.vividsolutions.jts.geom.Geometry
 
 /** 
  * @author morzzan
@@ -28,11 +29,11 @@ event RegisterEvent{
 	}
 }
 event PerceptEvent{
-	var pos : Vector3D
+	var pos = new Vector3D
 	var onZone : boolean
-	var around : List<Vector3D>
+	var around : List<UAVBody>
 	var speed : Vector3D
-	new(pos : Vector3D,speed : Vector3D, around : List<Vector3D> = <Vector3D> newArrayList(),onZone : boolean){
+	new(pos : Vector3D,speed : Vector3D, around : List<UAVBody> = <Vector3D> newArrayList(),onZone : boolean){
 		this.pos = pos
 		this.around = around
 		this.onZone = onZone
@@ -51,6 +52,12 @@ event GoThatWay{
 	var direction : Vector3D
 	new(direction : Vector3D){
 		this.direction = direction
+	}
+}
+event ShareExploredZone{
+	var zone : Geometry
+	new(zone : Geometry){
+		this.zone = zone
 	}
 }
 event HelpMe {

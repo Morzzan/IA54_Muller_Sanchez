@@ -16,6 +16,7 @@ import java.util.UUID;
 import model.Base;
 import model.Survivor;
 import model.UAVBody;
+import model.Utils;
 import model.Vector3D;
 import org.eclipse.xtend.lib.annotations.AccessorType;
 import org.eclipse.xtend.lib.annotations.Accessors;
@@ -32,6 +33,7 @@ public class Environment {
   @Accessors(AccessorType.PUBLIC_GETTER)
   private Base base = new Base();
   
+  @Accessors(AccessorType.PUBLIC_GETTER)
   private Polygon zone;
   
   @Accessors(AccessorType.PUBLIC_GETTER)
@@ -64,26 +66,26 @@ public class Environment {
     return _xblockexpression;
   }
   
-  public UAVBody makeUAVBody(final UUID id, final int nb) {
+  public synchronized UAVBody makeUAVBody(final UUID id, final int nb) {
     final UAVBody bdy = new UAVBody(id, nb);
     this.uavs.put(id, bdy);
     return bdy;
   }
   
-  public Survivor makeSurvivorBody(final UUID id, final int nb) {
-    Vector3D _randomPositionInZone = this.getRandomPositionInZone();
+  public synchronized Survivor makeSurvivorBody(final UUID id, final int nb) {
+    Vector3D _randomPositionInZone = Utils.getRandomPositionInZone(this.zone);
     final Survivor bdy = new Survivor(id, nb, _randomPositionInZone);
     this.survivors.put(id, bdy);
     return bdy;
   }
   
   @Pure
-  public ArrayList<Vector3D> getNeighbors(final UAVBody uav) {
-    ArrayList<Vector3D> around = CollectionLiterals.<Vector3D>newArrayList();
+  public ArrayList<UAVBody> getNeighbors(final UAVBody uav) {
+    ArrayList<UAVBody> around = CollectionLiterals.<UAVBody>newArrayList();
     Collection<UAVBody> _values = this.uavs.values();
     for (final UAVBody n : _values) {
-      if (((n.getPos().add(uav.getPos().times((-1))).norm() < uav.getPerceptRadius()) && (!Objects.equal(n, uav)))) {
-        around.add(n.getPos());
+      if (((n.getPos().add(uav.getPos().times((-1))).norm() < Utils.perceptRadius) && (!Objects.equal(n, uav)))) {
+        around.add(n);
       }
     }
     return around;
@@ -95,21 +97,12 @@ public class Environment {
     Collection<UAVBody> _values = this.uavs.values();
     for (final UAVBody n : _values) {
       double _norm = n.getPos().add(me.getPos().times((-1))).norm();
-      int _perceptRadius = me.getPerceptRadius();
-      boolean _lessThan = (_norm < _perceptRadius);
+      boolean _lessThan = (_norm < Utils.perceptRadius);
       if (_lessThan) {
         around.add(n.getId());
       }
     }
     return around;
-  }
-  
-  @Pure
-  public Vector3D getRandomPositionInZone() {
-    Vector3D _randomDirection = Vector3D.randomDirection();
-    double _nextDouble = this.rd.nextDouble();
-    double _multiply = (_nextDouble * 100);
-    return _randomDirection.times(_multiply);
   }
   
   public void saveSurvivor(final UUID survivorID) {
@@ -148,6 +141,11 @@ public class Environment {
   @Pure
   public Base getBase() {
     return this.base;
+  }
+  
+  @Pure
+  public Polygon getZone() {
+    return this.zone;
   }
   
   @Pure

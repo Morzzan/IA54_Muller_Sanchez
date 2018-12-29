@@ -2,6 +2,7 @@ package model
 
 import java.util.Random
 import org.eclipse.xtend.lib.annotations.Accessors
+import com.vividsolutions.jts.geom.Coordinate
 
 /** 
  * 
@@ -35,11 +36,22 @@ class Vector3D {
 		y=v.y
 		z=v.z
 	}
+	new(c : Coordinate){
+		this.x=c.x
+		this.y=c.y
+		this.z=0
+	}
 	def add(v : Vector3D){
 		return new Vector3D(x+v.x,y+v.y,z+v.z)
 	}
+	def substract(v : Vector3D) {
+		return new Vector3D(x - v.x, y - v.y, z - v.z)
+	}
 	def norm(){
 		return Math.sqrt(x*x+y*y+z*z)
+	}
+	def toPlaneCoordinate{
+		return new Coordinate(x,y)
 	}
 	def normalize{
 		return times(1/norm)

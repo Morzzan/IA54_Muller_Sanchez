@@ -1,20 +1,24 @@
 package skillscapacities;
 
+import com.google.common.base.Objects;
 import io.sarl.core.DefaultContextInteractions;
 import io.sarl.core.Logging;
 import io.sarl.lang.annotation.ImportedCapacityFeature;
 import io.sarl.lang.annotation.SarlElementType;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
+import io.sarl.lang.core.Agent;
 import io.sarl.lang.core.Skill;
 import io.sarl.lang.util.ClearableReference;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import model.GoThatWay;
 import model.PerceptEvent;
+import model.UAVBody;
 import model.Vector3D;
+import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Inline;
-import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import skillscapacities.MoveCapacity;
 
@@ -25,19 +29,51 @@ import skillscapacities.MoveCapacity;
 @SarlElementType(21)
 @SuppressWarnings("all")
 public class MoveSkill extends Skill implements MoveCapacity {
-  private List<PerceptEvent> percepts;
+  private final ArrayList<PerceptEvent> percepts = new ArrayList<PerceptEvent>();
   
-  public MoveSkill(final List<PerceptEvent> percepts) {
-    this.percepts = percepts;
+  private final Semaphore lock = new Semaphore(1);
+  
+  private PerceptEvent percept;
+  
+  @Override
+  public PerceptEvent getCurrentPercept() {
+    try {
+      this.lock.acquire();
+      try {
+        return this.percept;
+      } finally {
+        this.lock.release();
+      }
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  @Override
+  public void addPercept(final PerceptEvent p) {
+    try {
+      this.lock.acquire();
+      this.percept = p;
+      this.lock.release();
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
   }
   
   @Override
   public void move(final Vector3D direction) {
-    DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
-    Vector3D _stayOnZone = this.stayOnZone(direction.add(this.separation()));
-    GoThatWay _goThatWay = new GoThatWay(_stayOnZone);
-    _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_goThatWay);
-    this.percepts.clear();
+    try {
+      Vector3D d = direction.add(this.separation());
+      DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
+      Vector3D _stayOnZone = this.stayOnZone(d);
+      GoThatWay _goThatWay = new GoThatWay(_stayOnZone);
+      _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_goThatWay);
+      this.lock.acquire();
+      this.percepts.clear();
+      this.lock.release();
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
   }
   
   @Override
@@ -46,40 +82,39 @@ public class MoveSkill extends Skill implements MoveCapacity {
   }
   
   @Override
-  public void goToBase() {
-    this.move(IterableExtensions.<PerceptEvent>last(this.percepts).pos.times((-1)));
+  public void moveTo(final Vector3D position) {
+    this.move(position.substract(this.getCurrentPercept().pos).unitarize());
   }
   
-  @Pure
   public Vector3D separation() {
-    final PerceptEvent currentPercept = IterableExtensions.<PerceptEvent>last(this.percepts);
     Vector3D vSep = new Vector3D(0, 0, 0);
-    for (final Vector3D o : currentPercept.around) {
-      {
-        Vector3D n = o.add(currentPercept.pos.times((-1)));
-        double _norm = n.norm();
-        boolean _tripleEquals = (_norm == 0);
-        if (_tripleEquals) {
-          n = Vector3D.randomDirection();
+    if (((this.getCurrentPercept() != null) && (this.getCurrentPercept().around != null))) {
+      for (final UAVBody o : this.getCurrentPercept().around) {
+        {
+          Vector3D n = o.getPos().add(this.getCurrentPercept().pos.times((-1)));
+          double _norm = n.norm();
+          boolean _tripleEquals = (_norm == 0);
+          if (_tripleEquals) {
+            n = Vector3D.randomDirection();
+          }
+          Vector3D _unitarize = n.unitarize();
+          double _pow = Math.pow(n.norm(), 2);
+          double _divide = ((-100) / _pow);
+          Vector3D a = _unitarize.times(_divide);
+          vSep = vSep.add(a);
         }
-        Vector3D _unitarize = n.unitarize();
-        double _pow = Math.pow(n.norm(), 2);
-        double _divide = ((-100) / _pow);
-        Vector3D a = _unitarize.times(_divide);
-        vSep = vSep.add(a);
       }
     }
     return vSep;
   }
   
   public Vector3D stayOnZone(final Vector3D direction) {
-    final PerceptEvent currentPercept = IterableExtensions.<PerceptEvent>last(this.percepts);
-    if (currentPercept.onZone) {
+    if ((Objects.equal(this.getCurrentPercept(), null) || this.getCurrentPercept().onZone)) {
       return direction;
     } else {
       Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
       _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("Not On Zone Anymore");
-      return currentPercept.pos.times((-1)).unitarize().times(10);
+      return this.getCurrentPercept().pos.times((-1));
     }
   }
   
@@ -126,5 +161,15 @@ public class MoveSkill extends Skill implements MoveCapacity {
   public int hashCode() {
     int result = super.hashCode();
     return result;
+  }
+  
+  @SyntheticMember
+  public MoveSkill() {
+    super();
+  }
+  
+  @SyntheticMember
+  public MoveSkill(final Agent agent) {
+    super(agent);
   }
 }

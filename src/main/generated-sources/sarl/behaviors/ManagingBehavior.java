@@ -1,7 +1,9 @@
-package model;
+package behaviors;
 
 import Agents.SurvivorAgent;
 import com.google.common.base.Objects;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
 import io.sarl.core.DefaultContextInteractions;
 import io.sarl.core.Destroy;
 import io.sarl.core.Initialize;
@@ -15,8 +17,7 @@ import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
 import io.sarl.lang.core.Address;
 import io.sarl.lang.core.Agent;
-import io.sarl.lang.core.BuiltinCapacitiesProvider;
-import io.sarl.lang.core.DynamicSkillProvider;
+import io.sarl.lang.core.Behavior;
 import io.sarl.lang.core.Scope;
 import io.sarl.lang.core.Skill;
 import io.sarl.lang.util.ClearableReference;
@@ -24,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
-import javax.inject.Inject;
 import model.EndEvent;
 import model.Environment;
 import model.GoThatWay;
@@ -38,10 +38,8 @@ import model.UAVAgent;
 import model.UAVBody;
 import model.Vector3D;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
-import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Inline;
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.eclipse.xtext.xbase.lib.Pure;
 import view.Fx3DView;
 
@@ -49,28 +47,24 @@ import view.Fx3DView;
  * @author morzzan
  */
 @SarlSpecification("0.8")
-@SarlElementType(18)
+@SarlElementType(20)
 @SuppressWarnings("all")
-public class EnvAgent extends Agent {
-  private Fx3DView fx;
+public abstract class ManagingBehavior extends Behavior {
+  protected int step = 0;
   
-  private int step = 0;
+  protected final Environment env = new Environment();
   
-  private final Environment env = new Environment();
+  protected int nbuavs;
   
-  private int nbuavs;
+  protected int nbSurvivors;
   
-  private int nbSurvivors;
+  protected final ArrayList<GoThatWay> actions = CollectionLiterals.<GoThatWay>newArrayList();
   
-  private final ArrayList<GoThatWay> actions = CollectionLiterals.<GoThatWay>newArrayList();
+  protected final Semaphore sem = new Semaphore(1);
   
-  private final Semaphore sem = new Semaphore(1);
+  protected Fx3DView fx;
   
   private void $behaviorUnit$Initialize$0(final Initialize occurrence) {
-    Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("The EnvAgent was started.");
-    Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1.setLoggingName("Env");
     Object _get = occurrence.parameters[0];
     this.nbuavs = (((Integer) _get)).intValue();
     Object _get_1 = occurrence.parameters[1];
@@ -78,16 +72,17 @@ public class EnvAgent extends Agent {
   }
   
   private void $behaviorUnit$StartEvent$1(final StartEvent occurrence) {
+    this.fx = occurrence.fx;
     Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
     _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("Received Start event");
-    this.fx = occurrence.fx;
     for (int i = 0; (i < this.nbSurvivors); i++) {
       Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
       _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(SurvivorAgent.class, Integer.valueOf(i));
     }
     for (int i = 0; (i < this.nbuavs); i++) {
       Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
-      _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(UAVAgent.class, Integer.valueOf(i), this.env.getBase());
+      Polygon _zone = this.env.getZone();
+      _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(UAVAgent.class, Integer.valueOf(i), this.env.getBase(), ((Geometry) _zone));
     }
   }
   
@@ -103,32 +98,11 @@ public class EnvAgent extends Agent {
     }
   }
   
-  private void $behaviorUnit$GoThatWay$3(final GoThatWay occurrence) {
-    try {
-      this.sem.acquire();
-      this.actions.add(occurrence);
-      int _size = this.actions.size();
-      boolean _tripleEquals = (_size == this.nbuavs);
-      if (_tripleEquals) {
-        this.sem.release();
-        Schedules _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER = this.$castSkill(Schedules.class, (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = this.$getSkill(Schedules.class)) : this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
-        final Procedure1<Agent> _function = (Agent it) -> {
-          this.runstep();
-        };
-        _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER.in(50, _function);
-      } else {
-        this.sem.release();
-      }
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
-    }
-  }
-  
-  private void $behaviorUnit$SurvivorSaved$4(final SurvivorSaved occurrence) {
+  private void $behaviorUnit$SurvivorSaved$3(final SurvivorSaved occurrence) {
     this.env.saveSurvivor(occurrence.survivorID);
   }
   
-  private void $behaviorUnit$Destroy$5(final Destroy occurrence) {
+  private void $behaviorUnit$Destroy$4(final Destroy occurrence) {
     Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
     _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info((("It took " + Integer.valueOf(this.step)) + " steps to locate all the survivors in the zone"));
     DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
@@ -136,13 +110,15 @@ public class EnvAgent extends Agent {
     _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_endEvent);
   }
   
-  protected void sendPercepts() {
+  public void sendPercepts() {
+    Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info(("step " + Integer.valueOf(this.step)));
     Collection<UAVBody> _values = this.env.getUavs().values();
     for (final UAVBody uav : _values) {
       DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
       Vector3D _pos = uav.getPos();
       Vector3D _speed = uav.getSpeed();
-      ArrayList<Vector3D> _neighbors = this.env.getNeighbors(uav);
+      ArrayList<UAVBody> _neighbors = this.env.getNeighbors(uav);
       boolean _isOnZone = this.env.isOnZone(uav);
       PerceptEvent _perceptEvent = new PerceptEvent(_pos, _speed, _neighbors, _isOnZone);
       final Scope<Address> _function = (Address it) -> {
@@ -173,28 +149,7 @@ public class EnvAgent extends Agent {
     }
   }
   
-  protected void runstep() {
-    this.step++;
-    for (final GoThatWay action : this.actions) {
-      {
-        UAVBody actorBody = this.env.getUavs().get(action.getSource().getUUID());
-        actorBody.accelerate(action.direction);
-      }
-    }
-    Collection<UAVBody> _values = this.env.getUavs().values();
-    for (final UAVBody uav : _values) {
-      uav.move();
-    }
-    this.fx.updateObjects(this.env.getUavs().values(), this.env.getSurvivors().values());
-    this.actions.clear();
-    int _nbRescuedSurvivors = this.env.getNbRescuedSurvivors();
-    boolean _equals = (this.nbSurvivors == _nbRescuedSurvivors);
-    if (_equals) {
-      Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
-      _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.killMe();
-    }
-    this.sendPercepts();
-  }
+  public abstract void runstep();
   
   @Extension
   @ImportedCapacityFeature(Logging.class)
@@ -277,7 +232,7 @@ public class EnvAgent extends Agent {
   private void $guardEvaluator$SurvivorSaved(final SurvivorSaved occurrence, final Collection<Runnable> ___SARLlocal_runnableCollection) {
     assert occurrence != null;
     assert ___SARLlocal_runnableCollection != null;
-    ___SARLlocal_runnableCollection.add(() -> $behaviorUnit$SurvivorSaved$4(occurrence));
+    ___SARLlocal_runnableCollection.add(() -> $behaviorUnit$SurvivorSaved$3(occurrence));
   }
   
   @SyntheticMember
@@ -285,7 +240,7 @@ public class EnvAgent extends Agent {
   private void $guardEvaluator$Destroy(final Destroy occurrence, final Collection<Runnable> ___SARLlocal_runnableCollection) {
     assert occurrence != null;
     assert ___SARLlocal_runnableCollection != null;
-    ___SARLlocal_runnableCollection.add(() -> $behaviorUnit$Destroy$5(occurrence));
+    ___SARLlocal_runnableCollection.add(() -> $behaviorUnit$Destroy$4(occurrence));
   }
   
   @SyntheticMember
@@ -294,14 +249,6 @@ public class EnvAgent extends Agent {
     assert occurrence != null;
     assert ___SARLlocal_runnableCollection != null;
     ___SARLlocal_runnableCollection.add(() -> $behaviorUnit$RegisterEvent$2(occurrence));
-  }
-  
-  @SyntheticMember
-  @PerceptGuardEvaluator
-  private void $guardEvaluator$GoThatWay(final GoThatWay occurrence, final Collection<Runnable> ___SARLlocal_runnableCollection) {
-    assert occurrence != null;
-    assert ___SARLlocal_runnableCollection != null;
-    ___SARLlocal_runnableCollection.add(() -> $behaviorUnit$GoThatWay$3(occurrence));
   }
   
   @Override
@@ -314,7 +261,7 @@ public class EnvAgent extends Agent {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    EnvAgent other = (EnvAgent) obj;
+    ManagingBehavior other = (ManagingBehavior) obj;
     if (other.step != this.step)
       return false;
     if (other.nbuavs != this.nbuavs)
@@ -337,20 +284,7 @@ public class EnvAgent extends Agent {
   }
   
   @SyntheticMember
-  public EnvAgent(final UUID parentID, final UUID agentID) {
-    super(parentID, agentID);
-  }
-  
-  @SyntheticMember
-  @Inject
-  @Deprecated
-  public EnvAgent(final BuiltinCapacitiesProvider provider, final UUID parentID, final UUID agentID) {
-    super(provider, parentID, agentID);
-  }
-  
-  @SyntheticMember
-  @Inject
-  public EnvAgent(final UUID parentID, final UUID agentID, final DynamicSkillProvider skillProvider) {
-    super(parentID, agentID, skillProvider);
+  public ManagingBehavior(final Agent agent) {
+    super(agent);
   }
 }

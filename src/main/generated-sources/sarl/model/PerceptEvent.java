@@ -9,6 +9,7 @@ import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
 import io.sarl.lang.core.Event;
 import java.util.List;
+import model.UAVBody;
 import model.Vector3D;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Pure;
@@ -18,16 +19,16 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 @SarlElementType(15)
 @SuppressWarnings("all")
 public class PerceptEvent extends Event {
-  public Vector3D pos;
+  public Vector3D pos = new Vector3D();
   
   public boolean onZone;
   
-  public List<Vector3D> around;
+  public List<UAVBody> around;
   
   public Vector3D speed;
   
   @DefaultValueSource
-  public PerceptEvent(final Vector3D pos, final Vector3D speed, @DefaultValue("model.PerceptEvent#NEW_0") final List<Vector3D> around, final boolean onZone) {
+  public PerceptEvent(final Vector3D pos, final Vector3D speed, @DefaultValue("model.PerceptEvent#NEW_0") final List<UAVBody> around, final boolean onZone) {
     this.pos = pos;
     this.around = around;
     this.onZone = onZone;
@@ -41,7 +42,7 @@ public class PerceptEvent extends Event {
   @SarlSourceCode("<Vector3D> newArrayList()")
   private final static List $DEFAULT_VALUE$NEW_0 = CollectionLiterals.<Vector3D>newArrayList();
   
-  @DefaultValueUse("model.Vector3D,model.Vector3D,java.util.List<model.Vector3D>,boolean")
+  @DefaultValueUse("model.Vector3D,model.Vector3D,java.util.List<model.UAVBody>,boolean")
   @SyntheticMember
   public PerceptEvent(final Vector3D pos, final Vector3D speed, final boolean onZone) {
     this(pos, speed, $DEFAULT_VALUE$NEW_0, onZone);
@@ -87,5 +88,5 @@ public class PerceptEvent extends Event {
   }
   
   @SyntheticMember
-  private final static long serialVersionUID = 4475019830L;
+  private final static long serialVersionUID = 927151833L;
 }

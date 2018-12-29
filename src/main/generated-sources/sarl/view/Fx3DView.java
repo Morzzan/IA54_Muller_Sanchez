@@ -37,6 +37,10 @@ import view.MyController;
 public class Fx3DView extends FxApplication {
   public static EventSpace sp;
   
+  private final int sceneX = 1200;
+  
+  private final int sceneY = 600;
+  
   private MyController controller = new MyController();
   
   private Group grp = new Group();
@@ -57,8 +61,6 @@ public class Fx3DView extends FxApplication {
     this.controller.setUISpace(((OpenEventSpace) Fx3DView.sp));
     this.makeDrones(nbdrones);
     this.makeSurvivors(nbSurvivors);
-    Scene _scene = new Scene(this.grp, 600, 300);
-    this.scene = _scene;
     this.setCamera();
     stage.setTitle("See the drones");
     stage.setScene(this.scene);
@@ -167,12 +169,14 @@ public class Fx3DView extends FxApplication {
   }
   
   public void setCamera() {
+    Scene _scene = new Scene(this.grp, this.sceneX, this.sceneY);
+    this.scene = _scene;
     PerspectiveCamera _perspectiveCamera = new PerspectiveCamera();
     this.camera = _perspectiveCamera;
     this.camera.setFarClip(1000);
-    this.camera.setTranslateX((-300));
-    this.camera.setTranslateY((-150));
-    this.camera.setTranslateZ(0);
+    this.camera.setTranslateX(((-this.sceneX) / 2));
+    this.camera.setTranslateY(((-this.sceneY) / 2));
+    this.camera.setTranslateZ(200);
     this.scene.setCamera(this.camera);
   }
   
@@ -180,6 +184,17 @@ public class Fx3DView extends FxApplication {
   @Pure
   @SyntheticMember
   public boolean equals(final Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Fx3DView other = (Fx3DView) obj;
+    if (other.sceneX != this.sceneX)
+      return false;
+    if (other.sceneY != this.sceneY)
+      return false;
     return super.equals(obj);
   }
   
@@ -188,6 +203,9 @@ public class Fx3DView extends FxApplication {
   @SyntheticMember
   public int hashCode() {
     int result = super.hashCode();
+    final int prime = 31;
+    result = prime * result + this.sceneX;
+    result = prime * result + this.sceneY;
     return result;
   }
   

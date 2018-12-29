@@ -3,12 +3,13 @@
  */
 package skillscapacities
 
-import model.Vector3D
-import model.PerceptEvent
-import java.util.List
 import io.sarl.core.DefaultContextInteractions
-import model.GoThatWay
 import io.sarl.core.Logging
+import java.util.ArrayList
+import java.util.concurrent.Semaphore
+import model.GoThatWay
+import model.PerceptEvent
+import model.Vector3D
 
 /** 
  * @author morzzan
@@ -16,43 +17,55 @@ import io.sarl.core.Logging
  */
 skill MoveSkill implements MoveCapacity {
 	uses DefaultContextInteractions, Logging
-	var percepts : List<PerceptEvent>
+	val percepts = new ArrayList<PerceptEvent>
+	val lock = new Semaphore(1)
+	var percept : PerceptEvent
 	
-	new(percepts : List<PerceptEvent>){
-		this.percepts = percepts
+	override getCurrentPercept : PerceptEvent{
+		lock.acquire
+		try return percept
+		finally lock.release
 	}
-	
+		
+	override addPercept(p : PerceptEvent){
+		lock.acquire
+		percept=p
+		lock.release
+	}
 	override move(direction : Vector3D) {
-		emit(new GoThatWay(direction.add(separation).stayOnZone))
+		var d = direction.add(separation)
+		emit(new GoThatWay(d.stayOnZone))
+		lock.acquire
 		percepts.clear
+		lock.release
 	}
 	override moveRandomly {
 		move(Vector3D.randomDirection())
 	}
 
-	override goToBase{
-		move(percepts.last.pos.times(-1))
+	override moveTo(position : Vector3D){
+		move(position.substract(currentPercept.pos).unitarize)
 	}
-
+	
 	def separation {
-		val currentPercept = percepts.last
 		var vSep = new Vector3D(0, 0, 0)
-		for (o : currentPercept.around) {
-			var n = o.add(currentPercept.pos.times(-1))
-			if (n.norm === 0) {
-				n = Vector3D.randomDirection
+		if (currentPercept !== null && currentPercept.around !== null) {
+			for (o : currentPercept.around) {
+				var n = o.pos.add(currentPercept.pos.times(-1))
+				if (n.norm === 0) {
+					n = Vector3D.randomDirection
+				}
+				var a = n.unitarize.times(-100 / Math.pow(n.norm, 2))
+				vSep = vSep.add(a)
 			}
-			var a = n.unitarize.times(-100 / Math.pow(n.norm, 2))
-			vSep = vSep.add(a)
 		}
 		return vSep
 	}
 	def stayOnZone(direction : Vector3D) {
-		val currentPercept = percepts.last
-		if(currentPercept.onZone) return direction
+		if(currentPercept == null || currentPercept.onZone) return direction
 		else{
 			info("Not On Zone Anymore")
-			return currentPercept.pos.times(-1).unitarize.times(10)
+			return currentPercept.pos.times(-1)
 		}
 	}
 }

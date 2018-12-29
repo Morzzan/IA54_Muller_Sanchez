@@ -14,14 +14,14 @@ import javafx.scene.Scene
 import javafx.scene.paint.Color
 import javafx.scene.paint.PhongMaterial
 import javafx.scene.shape.Box
-import javafx.scene.shape.Sphere
 import javafx.scene.shape.DrawMode
 import javafx.scene.shape.Shape3D
+import javafx.scene.shape.Sphere
 import javafx.stage.Stage
 import model.StartEvent
+import model.Survivor
 import model.UAVBody
 import org.eclipse.xtend.lib.annotations.Accessors
-import model.Survivor
 
 /** 
  * @author morzzan
@@ -29,6 +29,8 @@ import model.Survivor
  */
 class Fx3DView extends FxApplication {
 	static public var sp : EventSpace
+	val sceneX = 1200
+	val sceneY = 600
 	var controller = new MyController
 	var grp = new Group()
 	var scene : Scene
@@ -51,7 +53,7 @@ class Fx3DView extends FxApplication {
 		
 
 		
-		scene = new Scene(grp, 600, 300);
+		
 		setCamera
 		
 
@@ -148,12 +150,13 @@ class Fx3DView extends FxApplication {
 		}
 	}
 	def setCamera {
+		scene = new Scene(grp, sceneX, sceneY);
 		camera = new PerspectiveCamera;
 		camera.farClip = 1000
 
-		camera.translateX = -300;
-		camera.translateY = -150;
-		camera.translateZ = 0;
+		camera.translateX = -sceneX/2;
+		camera.translateY = -sceneY/2;
+		camera.translateZ = 200;
 		// camera.rotationAxis = new Point3D(-1,0,0)
 		// camera.rotate = 45
 		// camera.rotationAxis = new Point3D(0, 1, 0)

@@ -3,6 +3,7 @@
  */
 package model
 
+import Agents.EnvAgent
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
@@ -21,12 +22,15 @@ agent BootAgent {
 
 	val nbdrones = 5
 	val nbSurvivors = 5
+	val graphical = false
 
 	on Initialize{
 		info("The Boot agent was started.")
-		spawn(typeof(EnvAgent), nbdrones,nbSurvivors)
-		Fx3DView.sp= defaultSpace
-		FxApplication.launch(Fx3DView, nbdrones.toString,nbSurvivors.toString)
+		spawn(typeof(EnvAgent), nbdrones,nbSurvivors, graphical)
+		if (graphical) {
+			Fx3DView.sp = defaultSpace
+			FxApplication.launch(Fx3DView, nbdrones.toString, nbSurvivors.toString)
+		}		
 		killMe
 	}	
 }

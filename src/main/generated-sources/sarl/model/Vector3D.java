@@ -1,5 +1,6 @@
 package model;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import io.sarl.lang.annotation.SarlElementType;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
@@ -39,14 +40,30 @@ public class Vector3D {
     this.z = v.z;
   }
   
+  public Vector3D(final Coordinate c) {
+    this.x = c.x;
+    this.y = c.y;
+    this.z = 0;
+  }
+  
   @Pure
   public Vector3D add(final Vector3D v) {
     return new Vector3D((this.x + v.x), (this.y + v.y), (this.z + v.z));
   }
   
   @Pure
+  public Vector3D substract(final Vector3D v) {
+    return new Vector3D((this.x - v.x), (this.y - v.y), (this.z - v.z));
+  }
+  
+  @Pure
   public double norm() {
     return Math.sqrt((((this.x * this.x) + (this.y * this.y)) + (this.z * this.z)));
+  }
+  
+  @Pure
+  public Coordinate toPlaneCoordinate() {
+    return new Coordinate(this.x, this.y);
   }
   
   @Pure

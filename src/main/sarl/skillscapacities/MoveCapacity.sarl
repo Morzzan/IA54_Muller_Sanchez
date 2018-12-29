@@ -4,6 +4,7 @@
 package skillscapacities
 
 import model.Vector3D
+import model.PerceptEvent
 
 /** 
  * @author morzzan
@@ -12,5 +13,7 @@ import model.Vector3D
 capacity MoveCapacity {
 	def move(direction : Vector3D)
 	def moveRandomly
-	def goToBase
+	def moveTo(position : Vector3D)
+	def getCurrentPercept : PerceptEvent
+	def addPercept(p : PerceptEvent)
 }

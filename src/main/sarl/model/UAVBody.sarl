@@ -11,10 +11,7 @@ import javafx.scene.shape.Shape3D
  * @author morzzan
  * 
  */
-class UAVBody extends SituatedObject{
-	@Accessors(PUBLIC_GETTER)
-	val perceptRadius = 50
-	
+class UAVBody extends SituatedObject{	
 	val maxSpeed = 3
 	@Accessors(PUBLIC_GETTER)
 	var id : UUID

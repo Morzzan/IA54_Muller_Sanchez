@@ -19,9 +19,6 @@ import org.eclipse.xtext.xbase.lib.Pure;
 @SuppressWarnings("all")
 public class Survivor extends SituatedObject {
   @Accessors(AccessorType.PUBLIC_GETTER)
-  private final int perceptRadius = 10;
-  
-  @Accessors(AccessorType.PUBLIC_GETTER)
   private UUID id;
   
   @Accessors(AccessorType.PUBLIC_GETTER)
@@ -47,8 +44,6 @@ public class Survivor extends SituatedObject {
     if (getClass() != obj.getClass())
       return false;
     Survivor other = (Survivor) obj;
-    if (other.perceptRadius != this.perceptRadius)
-      return false;
     if (!Objects.equals(this.id, other.id)) {
       return false;
     }
@@ -65,16 +60,10 @@ public class Survivor extends SituatedObject {
   public int hashCode() {
     int result = super.hashCode();
     final int prime = 31;
-    result = prime * result + this.perceptRadius;
     result = prime * result + Objects.hashCode(this.id);
     result = prime * result + this.nb;
     result = prime * result + (this.rescued ? 1231 : 1237);
     return result;
-  }
-  
-  @Pure
-  public int getPerceptRadius() {
-    return this.perceptRadius;
   }
   
   @Pure

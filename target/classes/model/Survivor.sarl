@@ -12,8 +12,6 @@ import java.util.UUID
  */
 class Survivor extends SituatedObject {
 	@Accessors(PUBLIC_GETTER)
-	val perceptRadius = 10
-	@Accessors(PUBLIC_GETTER)
 	var id : UUID
 	@Accessors(PUBLIC_GETTER)
 	var nb : int

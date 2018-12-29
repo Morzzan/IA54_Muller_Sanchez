@@ -18,9 +18,6 @@ import org.eclipse.xtext.xbase.lib.Pure;
 @SarlElementType(10)
 @SuppressWarnings("all")
 public class UAVBody extends SituatedObject {
-  @Accessors(AccessorType.PUBLIC_GETTER)
-  private final int perceptRadius = 50;
-  
   private final int maxSpeed = 3;
   
   @Accessors(AccessorType.PUBLIC_GETTER)
@@ -69,8 +66,6 @@ public class UAVBody extends SituatedObject {
     if (getClass() != obj.getClass())
       return false;
     UAVBody other = (UAVBody) obj;
-    if (other.perceptRadius != this.perceptRadius)
-      return false;
     if (other.maxSpeed != this.maxSpeed)
       return false;
     if (!Objects.equals(this.id, other.id)) {
@@ -87,16 +82,10 @@ public class UAVBody extends SituatedObject {
   public int hashCode() {
     int result = super.hashCode();
     final int prime = 31;
-    result = prime * result + this.perceptRadius;
     result = prime * result + this.maxSpeed;
     result = prime * result + Objects.hashCode(this.id);
     result = prime * result + this.nb;
     return result;
-  }
-  
-  @Pure
-  public int getPerceptRadius() {
-    return this.perceptRadius;
   }
   
   @Pure
