@@ -3,9 +3,15 @@
  */
 package model
 
+import java.util.UUID
+
 /** 
  * @author morzzan
  * 
  */
-class Base extends SituatedObject {
+class Base extends UAVBody {
+	new(id : UUID){
+		super(id,0)
+		this.pos = new Vector3D(200,0,0)
+	}
 }

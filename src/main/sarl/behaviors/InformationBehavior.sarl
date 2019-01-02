@@ -1,0 +1,65 @@
+/** 
+ * 
+ */
+package behaviors
+
+import io.sarl.core.Behaviors
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import java.util.Collection
+import model.Base
+import model.HelpMe
+import model.PerceptEvent
+import model.RelayedEvent
+import model.Survivor
+import model.SurvivorSaved
+import skillscapacities.MoveCapacity
+
+/** 
+ * @author morzzan
+ * 
+ */
+behavior InformationBehavior {
+	uses Logging, MoveCapacity, DefaultContextInteractions, Behaviors
+	var survivors : Collection<Survivor>
+	var base : Base
+
+	on Initialize {
+		survivors = occurrence.parameters.get(0) as Collection<Survivor>
+		base = occurrence.parameters.get(1) as Base
+	}
+	
+	on HelpMe{
+		synchronized (survivors) {
+			survivors.add(occurrence.survivor)
+		}		
+	}
+	
+	on SurvivorSaved{
+		synchronized (survivors) {
+			survivors.addAll(occurrence.survivors)
+		}	
+	}
+	
+	on PerceptEvent {
+		addPercept(occurrence)
+		relayInformations
+	}
+	
+	def relayInformations{
+		val currentPercept = currentPercept
+		val currentpos = currentPercept.pos
+		val closest = currentpos.getClosestToBaseFromMe(currentPercept.around, base)
+		moveTo(base.pos)
+		if(closest !== null){
+			val s = <Survivor>newArrayList
+			synchronized (survivors) {
+					s.addAll(survivors)
+				}
+			emit(new SurvivorSaved(s))[it.UUID == closest.id]
+			emit(new RelayedEvent)
+			unregisterBehavior(this)					
+		}		
+	}
+}

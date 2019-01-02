@@ -32,10 +32,12 @@ behavior NoGraphManagingBehavior extends ManagingBehavior{
 
 	override runstep {
 		step++
+		sem.acquire
 		for (action : actions) {
 			var actorBody = env.uavs.get(action.source.UUID)
 			actorBody.accelerate(action.direction)
 		}
+		sem.release
 		for (uav : env.uavs.values) {
 			uav.move
 		}

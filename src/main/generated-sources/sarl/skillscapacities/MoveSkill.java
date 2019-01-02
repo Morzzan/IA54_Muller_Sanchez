@@ -10,12 +10,12 @@ import io.sarl.lang.annotation.SyntheticMember;
 import io.sarl.lang.core.Agent;
 import io.sarl.lang.core.Skill;
 import io.sarl.lang.util.ClearableReference;
-import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import model.GoThatWay;
 import model.PerceptEvent;
 import model.UAVBody;
 import model.Vector3D;
+import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Inline;
@@ -29,18 +29,16 @@ import skillscapacities.MoveCapacity;
 @SarlElementType(21)
 @SuppressWarnings("all")
 public class MoveSkill extends Skill implements MoveCapacity {
-  private final ArrayList<PerceptEvent> percepts = new ArrayList<PerceptEvent>();
-  
   private final Semaphore lock = new Semaphore(1);
   
-  private PerceptEvent percept;
+  private PerceptEvent percept = new PerceptEvent(new Vector3D(), new Vector3D(), CollectionLiterals.<UAVBody>newArrayList(), true);
   
   @Override
   public PerceptEvent getCurrentPercept() {
     try {
       this.lock.acquire();
       try {
-        return this.percept;
+        return new PerceptEvent(this.percept.pos, this.percept.speed, this.percept.around, this.percept.onZone);
       } finally {
         this.lock.release();
       }
@@ -62,18 +60,11 @@ public class MoveSkill extends Skill implements MoveCapacity {
   
   @Override
   public void move(final Vector3D direction) {
-    try {
-      Vector3D d = direction.add(this.separation());
-      DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
-      Vector3D _stayOnZone = this.stayOnZone(d);
-      GoThatWay _goThatWay = new GoThatWay(_stayOnZone);
-      _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_goThatWay);
-      this.lock.acquire();
-      this.percepts.clear();
-      this.lock.release();
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
-    }
+    Vector3D d = direction.add(this.separation());
+    DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
+    Vector3D _stayOnZone = this.stayOnZone(d);
+    GoThatWay _goThatWay = new GoThatWay(_stayOnZone);
+    _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_goThatWay);
   }
   
   @Override

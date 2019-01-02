@@ -33,7 +33,7 @@ behavior GraphicalManagingBehavior extends ManagingBehavior{
 		for (uav : env.uavs.values) {
 			uav.move
 		}
-		fx.updateObjects(env.uavs.values, env.survivors.values)
+		fx.updateObjects(env.uavs.values, env.survivors.values, env.base)
 		actions.clear
 		if(nbSurvivors == env.nbRescuedSurvivors) killMe
 		sendPercepts

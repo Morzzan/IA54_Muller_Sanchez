@@ -15,13 +15,16 @@ import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
 import javafx.stage.Stage;
+import model.Base;
 import model.StartEvent;
 import model.Survivor;
 import model.UAVBody;
+import model.Utils;
 import org.eclipse.xtend.lib.annotations.AccessorType;
 import org.eclipse.xtend.lib.annotations.Accessors;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
@@ -49,6 +52,8 @@ public class Fx3DView extends FxApplication {
   
   private Camera camera;
   
+  private Shape3D base;
+  
   @Accessors(AccessorType.PUBLIC_GETTER)
   private ArrayList<Shape3D> drones = CollectionLiterals.<Shape3D>newArrayList();
   
@@ -59,6 +64,7 @@ public class Fx3DView extends FxApplication {
     int nbdrones = Integer.parseInt(this.getParameters().getRaw().get(0));
     int nbSurvivors = Integer.parseInt(this.getParameters().getRaw().get(1));
     this.controller.setUISpace(((OpenEventSpace) Fx3DView.sp));
+    this.makeBase();
     this.makeDrones(nbdrones);
     this.makeSurvivors(nbSurvivors);
     this.setCamera();
@@ -70,7 +76,7 @@ public class Fx3DView extends FxApplication {
     return null;
   }
   
-  public void updateObjects(final Iterable<UAVBody> uavs, final Iterable<Survivor> survivors) {
+  public void updateObjects(final Iterable<UAVBody> uavs, final Iterable<Survivor> survivors, final Base base) {
     for (final UAVBody uav : uavs) {
       {
         Shape3D _get = this.drones.get(uav.getNb());
@@ -96,6 +102,9 @@ public class Fx3DView extends FxApplication {
         }
       }
     }
+    this.base.setTranslateX(base.getPos().getX());
+    this.base.setTranslateY(base.getPos().getY());
+    this.base.setTranslateZ(base.getPos().getZ());
   }
   
   public void registerUAV(final UAVBody uav) {
@@ -128,6 +137,28 @@ public class Fx3DView extends FxApplication {
     return box1;
   }
   
+  public boolean makeBase() {
+    boolean _xblockexpression = false;
+    {
+      Box box1 = new Box();
+      box1.setWidth(20.0);
+      box1.setHeight(20.0);
+      box1.setDepth(20.0);
+      box1.setTranslateX(0);
+      box1.setTranslateY(0);
+      box1.setTranslateZ(0);
+      box1.setDrawMode(DrawMode.FILL);
+      PhongMaterial blueMaterial = new PhongMaterial();
+      blueMaterial.setSpecularColor(Color.BLUE);
+      blueMaterial.setDiffuseColor(Color.BLANCHEDALMOND);
+      box1.setMaterial(blueMaterial);
+      this.base = box1;
+      Group _group = new Group(box1);
+      _xblockexpression = this.grp.getChildren().add(_group);
+    }
+    return _xblockexpression;
+  }
+  
   public void makeDrones(final int nbDrones) {
     for (int i = 0; (i < nbDrones); i++) {
       {
@@ -142,7 +173,13 @@ public class Fx3DView extends FxApplication {
         blueMaterial.setDiffuseColor(Color.BLANCHEDALMOND);
         box.setMaterial(blueMaterial);
         this.drones.add(box);
-        Group _group = new Group(box);
+        Circle c = new Circle();
+        c.centerXProperty().bind(box.translateXProperty());
+        c.centerYProperty().bind(box.translateYProperty());
+        c.setRadius(Utils.perceptRadius);
+        c.setFill(Color.TRANSPARENT);
+        c.setStroke(Color.GREENYELLOW);
+        Group _group = new Group(box, c);
         this.grp.getChildren().add(_group);
       }
     }

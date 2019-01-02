@@ -13,23 +13,22 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * 
  */
 class Environment {
-	@Accessors(PUBLIC_GETTER)
-	var base = new Base
+	@Accessors(PUBLIC_GETTER,PUBLIC_SETTER)
+	var base : Base
 	@Accessors(PUBLIC_GETTER)
 	var zone : Polygon
 	@Accessors(PUBLIC_GETTER)
 	val uavs = <UUID, UAVBody>newHashMap
 	val rd = new Random
+	@Accessors(PUBLIC_GETTER)
+	var id : UUID
 	
 	@Accessors(PUBLIC_GETTER)
 	val survivors = <UUID,Survivor>newHashMap
 	
-	new {
-		var shapeFactory = new GeometricShapeFactory;
-		shapeFactory.centre = new Coordinate(0, 0)
-		shapeFactory.numPoints = 128
-		shapeFactory.size = 200
-		zone = shapeFactory.createCircle
+	new (id : UUID){
+		zone = Utils.createCircle(200, new Coordinate(0, 0))
+		this.id = id
 	}
 	
 	def isOnZone(uav : UAVBody){
@@ -50,8 +49,9 @@ class Environment {
 	def getNeighbors(uav : UAVBody) {
 		var around = <UAVBody>newArrayList
 		for (n : uavs.values) {
-			if(n.pos.add(uav.pos.times(-1)).norm < Utils.perceptRadius && n != uav) around.add(n)
+			if(n.pos.substract(uav.pos).norm < Utils.perceptRadius && n != uav) around.add(n)
 		}
+		if(base.pos.substract(uav.pos).norm < Utils.perceptRadius) around.add(base)
 		return around
 	}
 

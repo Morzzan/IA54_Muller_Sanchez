@@ -1,6 +1,8 @@
 package behaviors;
 
-import Agents.SurvivorAgent;
+import agents.BaseAgent;
+import agents.SurvivorAgent;
+import agents.UAVAgent;
 import com.google.common.base.Objects;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
@@ -9,7 +11,6 @@ import io.sarl.core.Destroy;
 import io.sarl.core.Initialize;
 import io.sarl.core.Lifecycle;
 import io.sarl.core.Logging;
-import io.sarl.core.Schedules;
 import io.sarl.lang.annotation.ImportedCapacityFeature;
 import io.sarl.lang.annotation.PerceptGuardEvaluator;
 import io.sarl.lang.annotation.SarlElementType;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
+import model.Base;
 import model.EndEvent;
 import model.Environment;
 import model.GoThatWay;
@@ -34,7 +36,6 @@ import model.StartEvent;
 import model.Survivor;
 import model.SurvivorPerceptEvent;
 import model.SurvivorSaved;
-import model.UAVAgent;
 import model.UAVBody;
 import model.Vector3D;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
@@ -52,7 +53,7 @@ import view.Fx3DView;
 public abstract class ManagingBehavior extends Behavior {
   protected int step = 0;
   
-  protected final Environment env = new Environment();
+  protected final Environment env = new Environment(this.getOwner().getID());
   
   protected int nbuavs;
   
@@ -72,17 +73,21 @@ public abstract class ManagingBehavior extends Behavior {
   }
   
   private void $behaviorUnit$StartEvent$1(final StartEvent occurrence) {
-    this.fx = occurrence.fx;
     Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
     _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("Received Start event");
+    this.fx = occurrence.fx;
+    Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
+    UUID _spawn = _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(BaseAgent.class, this.env.getId());
+    Base _base = new Base(_spawn);
+    this.env.setBase(_base);
     for (int i = 0; (i < this.nbSurvivors); i++) {
-      Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
-      _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(SurvivorAgent.class, Integer.valueOf(i));
+      Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER_1 = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
+      _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER_1.spawn(SurvivorAgent.class, Integer.valueOf(i));
     }
     for (int i = 0; (i < this.nbuavs); i++) {
-      Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
+      Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER_1 = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
       Polygon _zone = this.env.getZone();
-      _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(UAVAgent.class, Integer.valueOf(i), this.env.getBase(), ((Geometry) _zone));
+      _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER_1.spawn(UAVAgent.class, Integer.valueOf(i), this.env.getBase(), ((Geometry) _zone));
     }
   }
   
@@ -99,7 +104,11 @@ public abstract class ManagingBehavior extends Behavior {
   }
   
   private void $behaviorUnit$SurvivorSaved$3(final SurvivorSaved occurrence) {
-    this.env.saveSurvivor(occurrence.survivorID);
+    Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("Got the SurvivorSaved");
+    for (final Survivor survivor : occurrence.survivors) {
+      this.env.saveSurvivor(survivor.getId());
+    }
   }
   
   private void $behaviorUnit$Destroy$4(final Destroy occurrence) {
@@ -136,8 +145,7 @@ public abstract class ManagingBehavior extends Behavior {
         boolean _not = (!_isEmpty);
         if (_not) {
           DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER_1 = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
-          Vector3D _pos_1 = survivor.getPos();
-          SurvivorPerceptEvent _survivorPerceptEvent = new SurvivorPerceptEvent(seenUAVs, _pos_1);
+          SurvivorPerceptEvent _survivorPerceptEvent = new SurvivorPerceptEvent(seenUAVs, survivor);
           final Scope<Address> _function_1 = (Address it) -> {
             UUID _uUID = it.getUUID();
             UUID _id = survivor.getId();
@@ -194,21 +202,6 @@ public abstract class ManagingBehavior extends Behavior {
       this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = $getSkill(Lifecycle.class);
     }
     return $castSkill(Lifecycle.class, this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
-  }
-  
-  @Extension
-  @ImportedCapacityFeature(Schedules.class)
-  @SyntheticMember
-  private transient ClearableReference<Skill> $CAPACITY_USE$IO_SARL_CORE_SCHEDULES;
-  
-  @SyntheticMember
-  @Pure
-  @Inline(value = "$castSkill(Schedules.class, ($0$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || $0$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? ($0$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = $0$getSkill(Schedules.class)) : $0$CAPACITY_USE$IO_SARL_CORE_SCHEDULES)", imported = Schedules.class)
-  private Schedules $CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER() {
-    if (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) {
-      this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = $getSkill(Schedules.class);
-    }
-    return $castSkill(Schedules.class, this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
   }
   
   @SyntheticMember

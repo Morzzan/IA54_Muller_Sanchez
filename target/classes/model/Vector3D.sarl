@@ -1,8 +1,9 @@
 package model
 
+import com.vividsolutions.jts.geom.Coordinate
+import java.util.List
 import java.util.Random
 import org.eclipse.xtend.lib.annotations.Accessors
-import com.vividsolutions.jts.geom.Coordinate
 
 /** 
  * 
@@ -41,6 +42,23 @@ class Vector3D {
 		this.y=c.y
 		this.z=0
 	}
+	def getClosestToBaseFromMe(candidates : List<UAVBody>,base : Base) : UAVBody{
+		var closest = this
+		var closestUAV : UAVBody = null
+		var minDist = closest.substract(base.pos).norm
+		if(!candidates.empty){
+			for (uav : candidates) {			
+				val dist = uav.pos.substract(base.pos).norm
+				if(dist < minDist){
+					closestUAV = uav
+					minDist = dist
+					closest = uav.pos
+				}
+			}
+			return closestUAV
+		}
+	}
+	
 	def add(v : Vector3D){
 		return new Vector3D(x+v.x,y+v.y,z+v.z)
 	}
@@ -62,7 +80,7 @@ class Vector3D {
 	def times(k : double){
 		return new Vector3D(x*k,y*k,z*k)
 	}
-	def toString{
+	def toString : String {
 		return "("+x as int+","+y as int+","+z as int+")"
 	}
 	static def randomDirection(){

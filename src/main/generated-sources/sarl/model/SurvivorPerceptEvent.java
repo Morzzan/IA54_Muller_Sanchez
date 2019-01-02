@@ -6,7 +6,7 @@ import io.sarl.lang.annotation.SyntheticMember;
 import io.sarl.lang.core.Event;
 import java.util.List;
 import java.util.UUID;
-import model.Vector3D;
+import model.Survivor;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 
@@ -16,11 +16,11 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 public class SurvivorPerceptEvent extends Event {
   public List<UUID> around;
   
-  public Vector3D pos;
+  public Survivor survivor;
   
-  public SurvivorPerceptEvent(final List<UUID> around, final Vector3D pos) {
+  public SurvivorPerceptEvent(final List<UUID> around, final Survivor survivor) {
     this.around = around;
-    this.pos = pos;
+    this.survivor = survivor;
   }
   
   @Override
@@ -46,9 +46,9 @@ public class SurvivorPerceptEvent extends Event {
   protected void toString(final ToStringBuilder builder) {
     super.toString(builder);
     builder.add("around", this.around);
-    builder.add("pos", this.pos);
+    builder.add("survivor", this.survivor);
   }
   
   @SyntheticMember
-  private final static long serialVersionUID = 4056249102L;
+  private final static long serialVersionUID = -1599468048L;
 }

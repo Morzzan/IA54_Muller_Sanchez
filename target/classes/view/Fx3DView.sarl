@@ -17,11 +17,14 @@ import javafx.scene.shape.Box
 import javafx.scene.shape.DrawMode
 import javafx.scene.shape.Shape3D
 import javafx.scene.shape.Sphere
+import javafx.scene.shape.Circle
 import javafx.stage.Stage
 import model.StartEvent
 import model.Survivor
 import model.UAVBody
 import org.eclipse.xtend.lib.annotations.Accessors
+import model.Base
+import model.Utils
 
 /** 
  * @author morzzan
@@ -35,25 +38,19 @@ class Fx3DView extends FxApplication {
 	var grp = new Group()
 	var scene : Scene
 	var camera : Camera
+	var base : Shape3D
 	@Accessors(PUBLIC_GETTER)
 	var drones = <Shape3D>newArrayList
 	@Accessors(PUBLIC_GETTER)
 	var survivors = <Shape3D>newArrayList
 	
-	
 	protected def doApplicationStart(stage : Stage) : FXMLLoader {
 		var nbdrones = Integer.parseInt(parameters.raw.get(0))
 		var nbSurvivors = Integer.parseInt(parameters.raw.get(1))
-		controller.UISpace = Fx3DView.sp as OpenEventSpace
-		
-		
+		controller.UISpace = Fx3DView.sp as OpenEventSpace	
+		makeBase	
 		makeDrones(nbdrones)
-		makeSurvivors(nbSurvivors)
-		
-		
-
-		
-		
+		makeSurvivors(nbSurvivors)	
 		setCamera
 		
 
@@ -68,7 +65,7 @@ class Fx3DView extends FxApplication {
 		controller.emitToAgents(new StartEvent(this))
       	return null
 	}
-	def updateObjects(uavs : Iterable<UAVBody>, survivors : Iterable<Survivor>) {
+	def updateObjects(uavs : Iterable<UAVBody>, survivors : Iterable<Survivor>,base : Base) {
 		for (uav : uavs) {
 			drones.get(uav.nb).translateX = uav.pos.x
 			drones.get(uav.nb).translateY = uav.pos.y
@@ -86,6 +83,9 @@ class Fx3DView extends FxApplication {
 				box.material = gray
 			}
 		}
+		this.base.translateX = base.pos.x
+		this.base.translateY = base.pos.y
+		this.base.translateZ = base.pos.z		
 	}
 	def registerUAV(uav : UAVBody){
 		var box = drones.get(uav.nb)	
@@ -117,6 +117,22 @@ class Fx3DView extends FxApplication {
 		box1.material = blueMaterial
 		return box1
 	}
+	def makeBase {
+		var box1 = new Box
+		box1.setWidth(20.0);
+		box1.setHeight(20.0);
+		box1.setDepth(20.0);
+		box1.translateX = 0
+		box1.translateY = 0
+		box1.translateZ = 0
+		box1.setDrawMode(DrawMode.FILL);
+		var blueMaterial = new PhongMaterial();
+		blueMaterial.setSpecularColor(Color.BLUE);
+		blueMaterial.setDiffuseColor(Color.BLANCHEDALMOND);
+		box1.material = blueMaterial
+		this.base = box1
+		grp.children.add(new Group(box1))
+	}
 	def makeDrones(nbDrones : int) {
 		for (var i = 0; i < nbDrones; i++) {
 			var box = new Sphere
@@ -130,7 +146,13 @@ class Fx3DView extends FxApplication {
 			blueMaterial.setDiffuseColor(Color.BLANCHEDALMOND);
 			box.material = blueMaterial
 			drones.add(box)
-			grp.children.add(new Group(box))
+			var c = new Circle()
+			c.centerXProperty.bind(box.translateXProperty)
+			c.centerYProperty.bind(box.translateYProperty)
+			c.radius = Utils.perceptRadius
+			c.fill = Color.TRANSPARENT
+			c.stroke = Color.GREENYELLOW
+			grp.children.add(new Group(box,c))
 		}
 	}
 	def makeSurvivors(nbSurvivors : int) {

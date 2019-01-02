@@ -62,25 +62,31 @@ public class NoGraphManagingBehavior extends ManagingBehavior {
   
   @Override
   public void runstep() {
-    this.step++;
-    for (final GoThatWay action : this.actions) {
-      {
-        UAVBody actorBody = this.env.getUavs().get(action.getSource().getUUID());
-        actorBody.accelerate(action.direction);
+    try {
+      this.step++;
+      this.sem.acquire();
+      for (final GoThatWay action : this.actions) {
+        {
+          UAVBody actorBody = this.env.getUavs().get(action.getSource().getUUID());
+          actorBody.accelerate(action.direction);
+        }
       }
+      this.sem.release();
+      Collection<UAVBody> _values = this.env.getUavs().values();
+      for (final UAVBody uav : _values) {
+        uav.move();
+      }
+      this.actions.clear();
+      int _nbRescuedSurvivors = this.env.getNbRescuedSurvivors();
+      boolean _equals = (this.nbSurvivors == _nbRescuedSurvivors);
+      if (_equals) {
+        Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
+        _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.killMe();
+      }
+      this.sendPercepts();
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
     }
-    Collection<UAVBody> _values = this.env.getUavs().values();
-    for (final UAVBody uav : _values) {
-      uav.move();
-    }
-    this.actions.clear();
-    int _nbRescuedSurvivors = this.env.getNbRescuedSurvivors();
-    boolean _equals = (this.nbSurvivors == _nbRescuedSurvivors);
-    if (_equals) {
-      Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
-      _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.killMe();
-    }
-    this.sendPercepts();
   }
   
   @Extension

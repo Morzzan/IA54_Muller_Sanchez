@@ -3,25 +3,26 @@
  */
 package behaviors
 
-import Agents.SurvivorAgent
+import agents.SurvivorAgent
+import agents.UAVAgent
 import com.vividsolutions.jts.geom.Geometry
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Destroy
+import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
-import io.sarl.core.Schedules
 import java.util.concurrent.Semaphore
-import view.Fx3DView
-import io.sarl.core.Initialize
+import model.EndEvent
 import model.Environment
 import model.GoThatWay
-import model.StartEvent
-import model.UAVAgent
-import model.RegisterEvent
-import model.SurvivorSaved
 import model.PerceptEvent
-import model.EndEvent
+import model.RegisterEvent
+import model.StartEvent
 import model.SurvivorPerceptEvent
+import model.SurvivorSaved
+import view.Fx3DView
+import agents.BaseAgent
+import model.Base
 
 /** 
  * @author morzzan
@@ -29,14 +30,14 @@ import model.SurvivorPerceptEvent
  */
  abstract behavior ManagingBehavior {
 	protected var step = 0
-	protected val env = new Environment
+	protected val env = new Environment(this.owner.ID)
 	protected var nbuavs : int
 	protected var nbSurvivors : int
 	protected val actions = <GoThatWay>newArrayList
 	protected val sem = new Semaphore(1)
 	protected var fx : Fx3DView
 
-	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
+	uses Logging, DefaultContextInteractions, Lifecycle
 
 	on Initialize{
 		nbuavs = occurrence.parameters.get(0) as Integer
@@ -44,8 +45,9 @@ import model.SurvivorPerceptEvent
 	}
 
 	on StartEvent {
-		fx = occurrence.fx
 		info("Received Start event")
+		fx = occurrence.fx
+		env.base = new Base(spawn(typeof(BaseAgent), env.id))
 		for (var i = 0; i < nbSurvivors; i++) {
 			spawn(typeof(SurvivorAgent), i)
 		}
@@ -64,9 +66,12 @@ import model.SurvivorPerceptEvent
 			sendPercepts
 		}
 	}
-
+	
 	on SurvivorSaved {
-		env.saveSurvivor(occurrence.survivorID)
+		info("Got the SurvivorSaved")
+		for (survivor : occurrence.survivors) {
+			env.saveSurvivor(survivor.id)
+		}
 	}
 
 	on Destroy {
@@ -81,7 +86,7 @@ import model.SurvivorPerceptEvent
 		}
 		for (survivor : env.survivors.values) {
 			var seenUAVs = env.getSeenUAVs(survivor)
-			if(!seenUAVs.empty) emit(new SurvivorPerceptEvent(seenUAVs, survivor.pos))[it.UUID == survivor.id]
+			if(!seenUAVs.empty) emit(new SurvivorPerceptEvent(seenUAVs, survivor))[it.UUID == survivor.id]
 		}
 	}
 

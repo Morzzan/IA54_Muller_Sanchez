@@ -18,7 +18,7 @@ import org.eclipse.xtext.xbase.lib.Pure;
 @SarlElementType(10)
 @SuppressWarnings("all")
 public class Utils {
-  public final static int perceptRadius = 20;
+  public final static int perceptRadius = 30;
   
   @Pure
   public static Vector3D getRandomPositionInZone(final Geometry zone) {
@@ -33,7 +33,7 @@ public class Utils {
     final GeometricShapeFactory shapeFactory = new GeometricShapeFactory();
     Coordinate _coordinate = new Coordinate(center.x, center.y);
     shapeFactory.setCentre(_coordinate);
-    shapeFactory.setNumPoints(128);
+    shapeFactory.setNumPoints(16);
     shapeFactory.setSize((radius * 2));
     return shapeFactory.createCircle();
   }

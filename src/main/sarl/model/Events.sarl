@@ -8,6 +8,8 @@ import java.util.List
 import java.util.UUID
 import io.sarl.lang.core.Agent
 import com.vividsolutions.jts.geom.Geometry
+import java.util.Collection
+import java.util.Collections
 
 /** 
  * @author morzzan
@@ -40,12 +42,12 @@ event PerceptEvent{
 		this.speed=speed
 	}
 }
-event SurvivorPerceptEvent{
+event SurvivorPerceptEvent{ 
 	var around : List<UUID>
-	var pos : Vector3D
-	new(around :List<UUID>, pos : Vector3D){
+	var survivor : Survivor
+	new(around :List<UUID>, survivor : Survivor){
 		this.around=around
-		this.pos = pos
+		this.survivor = survivor
 	}
 }
 event GoThatWay{
@@ -54,21 +56,28 @@ event GoThatWay{
 		this.direction = direction
 	}
 }
-event ShareExploredZone{
+event ShareExploredZoneEvent{
 	var zone : Geometry
 	new(zone : Geometry){
 		this.zone = zone
 	}
 }
 event HelpMe {
-var pos : Vector3D
-new(direction : Vector3D) {
-	this.pos = pos
+var survivor : Survivor
+new(survivor : Survivor) {
+	this.survivor = survivor
 	}
 }
 event SurvivorSaved{
-	var survivorID : UUID
-	new(survivorID : UUID){
-		this.survivorID = survivorID
+	var survivors : Collection<Survivor>
+	new(survivors : Collection<Survivor>){
+		this.survivors = survivors
+	}
+}
+event RelayedEvent
+event DiscoveredEvent{
+	var survivors : Collection<Survivor>
+	new(survivors : Collection<Survivor>){
+		this.survivors = survivors
 	}
 }

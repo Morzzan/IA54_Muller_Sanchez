@@ -4,7 +4,7 @@ import io.sarl.lang.annotation.SarlElementType;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
 import io.sarl.lang.core.Event;
-import model.Vector3D;
+import model.Survivor;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 
@@ -12,10 +12,10 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 @SarlElementType(15)
 @SuppressWarnings("all")
 public class HelpMe extends Event {
-  public Vector3D pos;
+  public Survivor survivor;
   
-  public HelpMe(final Vector3D direction) {
-    this.pos = this.pos;
+  public HelpMe(final Survivor survivor) {
+    this.survivor = survivor;
   }
   
   @Override
@@ -40,9 +40,9 @@ public class HelpMe extends Event {
   @Pure
   protected void toString(final ToStringBuilder builder) {
     super.toString(builder);
-    builder.add("pos", this.pos);
+    builder.add("survivor", this.survivor);
   }
   
   @SyntheticMember
-  private final static long serialVersionUID = 3353546777L;
+  private final static long serialVersionUID = -2302170373L;
 }

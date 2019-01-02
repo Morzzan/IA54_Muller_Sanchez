@@ -1,0 +1,31 @@
+
+package agents
+
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import model.SurvivorSaved
+import java.util.UUID
+import model.EndEvent
+import io.sarl.core.Lifecycle
+
+/** 
+ * @author morzzan
+ * 
+ */
+agent BaseAgent {
+	var environmentID : UUID
+	uses Logging, DefaultContextInteractions, Lifecycle
+
+	on Initialize {
+		loggingName = "Base"
+		environmentID = occurrence.parameters.get(0) as UUID
+	}
+	on SurvivorSaved{
+		emit(occurrence)[it.UUID == environmentID]
+	}
+	
+	on EndEvent{
+		killMe
+	}
+}

@@ -4,7 +4,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import io.sarl.lang.annotation.SarlElementType;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
+import java.util.List;
 import java.util.Random;
+import model.Base;
+import model.UAVBody;
 import org.eclipse.xtend.lib.annotations.AccessorType;
 import org.eclipse.xtend.lib.annotations.Accessors;
 import org.eclipse.xtext.xbase.lib.Pure;
@@ -44,6 +47,29 @@ public class Vector3D {
     this.x = c.x;
     this.y = c.y;
     this.z = 0;
+  }
+  
+  @Pure
+  public UAVBody getClosestToBaseFromMe(final List<UAVBody> candidates, final Base base) {
+    Vector3D closest = this;
+    UAVBody closestUAV = null;
+    double minDist = closest.substract(base.getPos()).norm();
+    boolean _isEmpty = candidates.isEmpty();
+    boolean _not = (!_isEmpty);
+    if (_not) {
+      for (final UAVBody uav : candidates) {
+        {
+          final double dist = uav.getPos().substract(base.getPos()).norm();
+          if ((dist < minDist)) {
+            closestUAV = uav;
+            minDist = dist;
+            closest = uav.getPos();
+          }
+        }
+      }
+      return closestUAV;
+    }
+    return null;
   }
   
   @Pure

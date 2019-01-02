@@ -4,7 +4,6 @@ import com.google.common.base.Objects;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
 import io.sarl.lang.annotation.SarlElementType;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
@@ -30,8 +29,8 @@ import org.eclipse.xtext.xbase.lib.Pure;
 @SarlElementType(10)
 @SuppressWarnings("all")
 public class Environment {
-  @Accessors(AccessorType.PUBLIC_GETTER)
-  private Base base = new Base();
+  @Accessors({ AccessorType.PUBLIC_GETTER, AccessorType.PUBLIC_SETTER })
+  private Base base;
   
   @Accessors(AccessorType.PUBLIC_GETTER)
   private Polygon zone;
@@ -42,15 +41,15 @@ public class Environment {
   private final Random rd = new Random();
   
   @Accessors(AccessorType.PUBLIC_GETTER)
+  private UUID id;
+  
+  @Accessors(AccessorType.PUBLIC_GETTER)
   private final HashMap<UUID, Survivor> survivors = CollectionLiterals.<UUID, Survivor>newHashMap();
   
-  public Environment() {
-    GeometricShapeFactory shapeFactory = new GeometricShapeFactory();
+  public Environment(final UUID id) {
     Coordinate _coordinate = new Coordinate(0, 0);
-    shapeFactory.setCentre(_coordinate);
-    shapeFactory.setNumPoints(128);
-    shapeFactory.setSize(200);
-    this.zone = shapeFactory.createCircle();
+    this.zone = Utils.createCircle(200, _coordinate);
+    this.id = id;
   }
   
   @Pure
@@ -84,9 +83,14 @@ public class Environment {
     ArrayList<UAVBody> around = CollectionLiterals.<UAVBody>newArrayList();
     Collection<UAVBody> _values = this.uavs.values();
     for (final UAVBody n : _values) {
-      if (((n.getPos().add(uav.getPos().times((-1))).norm() < Utils.perceptRadius) && (!Objects.equal(n, uav)))) {
+      if (((n.getPos().substract(uav.getPos()).norm() < Utils.perceptRadius) && (!Objects.equal(n, uav)))) {
         around.add(n);
       }
+    }
+    double _norm = this.base.getPos().substract(uav.getPos()).norm();
+    boolean _lessThan = (_norm < Utils.perceptRadius);
+    if (_lessThan) {
+      around.add(this.base);
     }
     return around;
   }
@@ -127,6 +131,16 @@ public class Environment {
   @Pure
   @SyntheticMember
   public boolean equals(final Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Environment other = (Environment) obj;
+    if (!java.util.Objects.equals(this.id, other.id)) {
+      return false;
+    }
     return super.equals(obj);
   }
   
@@ -135,12 +149,18 @@ public class Environment {
   @SyntheticMember
   public int hashCode() {
     int result = super.hashCode();
+    final int prime = 31;
+    result = prime * result + java.util.Objects.hashCode(this.id);
     return result;
   }
   
   @Pure
   public Base getBase() {
     return this.base;
+  }
+  
+  public void setBase(final Base base) {
+    this.base = base;
   }
   
   @Pure
@@ -151,6 +171,11 @@ public class Environment {
   @Pure
   public HashMap<UUID, UAVBody> getUavs() {
     return this.uavs;
+  }
+  
+  @Pure
+  public UUID getId() {
+    return this.id;
   }
   
   @Pure

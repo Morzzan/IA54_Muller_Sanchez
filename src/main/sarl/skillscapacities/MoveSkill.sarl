@@ -5,7 +5,6 @@ package skillscapacities
 
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Logging
-import java.util.ArrayList
 import java.util.concurrent.Semaphore
 import model.GoThatWay
 import model.PerceptEvent
@@ -17,13 +16,12 @@ import model.Vector3D
  */
 skill MoveSkill implements MoveCapacity {
 	uses DefaultContextInteractions, Logging
-	val percepts = new ArrayList<PerceptEvent>
 	val lock = new Semaphore(1)
-	var percept : PerceptEvent
+	var percept : PerceptEvent = new PerceptEvent(new Vector3D,new Vector3D,newArrayList,true)
 	
 	override getCurrentPercept : PerceptEvent{
 		lock.acquire
-		try return percept
+		try return new PerceptEvent(percept.pos,percept.speed, percept.around,percept.onZone)
 		finally lock.release
 	}
 		
@@ -35,9 +33,6 @@ skill MoveSkill implements MoveCapacity {
 	override move(direction : Vector3D) {
 		var d = direction.add(separation)
 		emit(new GoThatWay(d.stayOnZone))
-		lock.acquire
-		percepts.clear
-		lock.release
 	}
 	override moveRandomly {
 		move(Vector3D.randomDirection())
