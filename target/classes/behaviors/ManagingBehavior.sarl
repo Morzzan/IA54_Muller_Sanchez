@@ -23,6 +23,7 @@ import model.SurvivorSaved
 import view.Fx3DView
 import agents.BaseAgent
 import model.Base
+import java.io.PrintWriter
 
 /** 
  * @author morzzan
@@ -36,12 +37,17 @@ import model.Base
 	protected val actions = <GoThatWay>newArrayList
 	protected val sem = new Semaphore(1)
 	protected var fx : Fx3DView
+	protected var writer : PrintWriter
 
 	uses Logging, DefaultContextInteractions, Lifecycle
 
 	on Initialize{
 		nbuavs = occurrence.parameters.get(0) as Integer
 		nbSurvivors = occurrence.parameters.get(1) as Integer
+		try {
+			writer = new PrintWriter("data.csv", "UTF-8")
+			writer.println("step,nbSaved")
+		} catch(e : Exception){}		
 	}
 
 	on StartEvent {
@@ -77,6 +83,7 @@ import model.Base
 	on Destroy {
 		info("It took " + step + " steps to locate all the survivors in the zone")
 		emit(new EndEvent)
+		writer.close
 	}
 
 	def sendPercepts {
@@ -89,6 +96,11 @@ import model.Base
 			if(!seenUAVs.empty) emit(new SurvivorPerceptEvent(seenUAVs, survivor))[it.UUID == survivor.id]
 		}
 	}
-
+	def savestate{
+		try {
+			writer.println(step + "," + env.nbRescuedSurvivors)
+		}
+		catch(e : Exception){}
+	}
 	abstract def runstep
 }

@@ -31,7 +31,7 @@ import view.Fx3DView;
 @SarlElementType(18)
 @SuppressWarnings("all")
 public class BootAgent extends Agent {
-  private final int nbdrones = 10;
+  private final int nbdrones = 5;
   
   private final int nbSurvivors = 5;
   

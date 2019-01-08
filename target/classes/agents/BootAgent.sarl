@@ -20,7 +20,7 @@ import static view.Fx3DView.*
 agent BootAgent {
 	uses Logging, Lifecycle, DefaultContextInteractions
 
-	val nbdrones = 10
+	val nbdrones = 5
 	val nbSurvivors = 5
 	val graphical = true
 

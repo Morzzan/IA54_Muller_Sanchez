@@ -13,7 +13,7 @@ import com.vividsolutions.jts.util.GeometricShapeFactory
  * 
  */
 class Utils {
-	public static val perceptRadius = 30
+	public static val perceptRadius = 50
 
 	static def getRandomPositionInZone(zone : Geometry){
 		var factory = new RandomPointsBuilder

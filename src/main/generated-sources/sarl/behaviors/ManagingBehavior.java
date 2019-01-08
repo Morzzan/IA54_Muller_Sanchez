@@ -22,6 +22,7 @@ import io.sarl.lang.core.Behavior;
 import io.sarl.lang.core.Scope;
 import io.sarl.lang.core.Skill;
 import io.sarl.lang.util.ClearableReference;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
@@ -39,6 +40,7 @@ import model.SurvivorSaved;
 import model.UAVBody;
 import model.Vector3D;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
+import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Inline;
 import org.eclipse.xtext.xbase.lib.Pure;
@@ -65,11 +67,23 @@ public abstract class ManagingBehavior extends Behavior {
   
   protected Fx3DView fx;
   
+  protected PrintWriter writer;
+  
   private void $behaviorUnit$Initialize$0(final Initialize occurrence) {
     Object _get = occurrence.parameters[0];
     this.nbuavs = (((Integer) _get)).intValue();
     Object _get_1 = occurrence.parameters[1];
     this.nbSurvivors = (((Integer) _get_1)).intValue();
+    try {
+      PrintWriter _printWriter = new PrintWriter("data.csv", "UTF-8");
+      this.writer = _printWriter;
+      this.writer.println("step,nbSaved");
+    } catch (final Throwable _t) {
+      if (_t instanceof Exception) {
+      } else {
+        throw Exceptions.sneakyThrow(_t);
+      }
+    }
   }
   
   private void $behaviorUnit$StartEvent$1(final StartEvent occurrence) {
@@ -117,6 +131,7 @@ public abstract class ManagingBehavior extends Behavior {
     DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
     EndEvent _endEvent = new EndEvent();
     _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_endEvent);
+    this.writer.close();
   }
   
   public void sendPercepts() {
@@ -155,6 +170,23 @@ public abstract class ManagingBehavior extends Behavior {
         }
       }
     }
+  }
+  
+  public Object savestate() {
+    Object _xtrycatchfinallyexpression = null;
+    try {
+      String _plus = (Integer.valueOf(this.step) + ",");
+      int _nbRescuedSurvivors = this.env.getNbRescuedSurvivors();
+      String _plus_1 = (_plus + Integer.valueOf(_nbRescuedSurvivors));
+      this.writer.println(_plus_1);
+    } catch (final Throwable _t) {
+      if (_t instanceof Exception) {
+        _xtrycatchfinallyexpression = null;
+      } else {
+        throw Exceptions.sneakyThrow(_t);
+      }
+    }
+    return _xtrycatchfinallyexpression;
   }
   
   public abstract void runstep();

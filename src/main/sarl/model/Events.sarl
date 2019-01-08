@@ -3,13 +3,11 @@
  */
 package model
 
-import view.Fx3DView
-import java.util.List
-import java.util.UUID
-import io.sarl.lang.core.Agent
 import com.vividsolutions.jts.geom.Geometry
 import java.util.Collection
-import java.util.Collections
+import java.util.List
+import java.util.UUID
+import view.Fx3DView
 
 /** 
  * @author morzzan

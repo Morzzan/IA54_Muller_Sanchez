@@ -18,7 +18,7 @@ import org.eclipse.xtext.xbase.lib.Pure;
 @SarlElementType(10)
 @SuppressWarnings("all")
 public class Utils {
-  public final static int perceptRadius = 30;
+  public final static int perceptRadius = 50;
   
   @Pure
   public static Vector3D getRandomPositionInZone(final Geometry zone) {

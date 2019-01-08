@@ -77,6 +77,7 @@ public class NoGraphManagingBehavior extends ManagingBehavior {
         uav.move();
       }
       this.actions.clear();
+      this.savestate();
       int _nbRescuedSurvivors = this.env.getNbRescuedSurvivors();
       boolean _equals = (this.nbSurvivors == _nbRescuedSurvivors);
       if (_equals) {

@@ -42,6 +42,7 @@ behavior NoGraphManagingBehavior extends ManagingBehavior{
 			uav.move
 		}
 		actions.clear
+		savestate
 		if(nbSurvivors == env.nbRescuedSurvivors) killMe
 		sendPercepts
 	}	

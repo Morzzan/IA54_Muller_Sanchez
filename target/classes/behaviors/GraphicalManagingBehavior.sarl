@@ -35,6 +35,7 @@ behavior GraphicalManagingBehavior extends ManagingBehavior{
 		}
 		fx.updateObjects(env.uavs.values, env.survivors.values, env.base)
 		actions.clear
+		savestate
 		if(nbSurvivors == env.nbRescuedSurvivors) killMe
 		sendPercepts
 	}	

@@ -31,6 +31,13 @@
     <artifactId>jts</artifactId>
     <version>1.13</version>
 </dependency>
+<!-- https://mvnrepository.com/artifact/io.janusproject/io.janusproject.plugin -->
+<dependency>
+    <groupId>io.janusproject</groupId>
+    <artifactId>io.janusproject.plugin</artifactId>
+    <version>0.8.6</version>
+</dependency>
+
 		
 	</dependencies>
 

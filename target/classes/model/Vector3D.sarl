@@ -46,7 +46,7 @@ class Vector3D {
 		var closest = this
 		var closestUAV : UAVBody = null
 		var minDist = closest.substract(base.pos).norm
-		if(!candidates.empty){
+		if(!candidates.empty && base !== null){
 			for (uav : candidates) {			
 				val dist = uav.pos.substract(base.pos).norm
 				if(dist < minDist){

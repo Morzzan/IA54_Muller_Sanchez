@@ -63,6 +63,7 @@ public class GraphicalManagingBehavior extends ManagingBehavior {
     }
     this.fx.updateObjects(this.env.getUavs().values(), this.env.getSurvivors().values(), this.env.getBase());
     this.actions.clear();
+    this.savestate();
     int _nbRescuedSurvivors = this.env.getNbRescuedSurvivors();
     boolean _equals = (this.nbSurvivors == _nbRescuedSurvivors);
     if (_equals) {

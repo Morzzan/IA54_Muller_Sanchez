@@ -54,9 +54,7 @@ public class Vector3D {
     Vector3D closest = this;
     UAVBody closestUAV = null;
     double minDist = closest.substract(base.getPos()).norm();
-    boolean _isEmpty = candidates.isEmpty();
-    boolean _not = (!_isEmpty);
-    if (_not) {
+    if (((!candidates.isEmpty()) && (base != null))) {
       for (final UAVBody uav : candidates) {
         {
           final double dist = uav.getPos().substract(base.getPos()).norm();
