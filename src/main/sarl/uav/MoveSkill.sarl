@@ -67,22 +67,11 @@ skill MoveSkill implements MoveCapacity {
 		moveTo(base.pos)
 	}
 	/**
-	 * @return a move component(Vector3D) allowing to split from the other neighbor UAVs
+	 * @return a move component(Vector3D) allowing to split from the other neighbor UAVs if needed
 	 */
-	def separation {
-		var vSep = new Vector3D(0, 0, 0)
-		if (currentPercept !== null && currentPercept.around !== null) {
-			for (o : currentPercept.around) {
-				var n = o.pos.add(currentPercept.pos.times(-1))
-				if (n.norm === 0) {
-					n = Vector3D.randomDirection
-				}
-				var a = n.unitarize.times(-100 / Math.pow(n.norm, 2))
-				vSep = vSep.add(a)
-			}
-		}
-		return vSep
-	}
+	def separation : Vector3D{
+		return new Vector3D
+	} 
 	/**
 	 * @return an adapted direction to move to preventing zone leaving
 	 */

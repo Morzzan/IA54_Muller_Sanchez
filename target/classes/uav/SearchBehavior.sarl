@@ -25,7 +25,8 @@ import survivor.Survivor
  * @author morzzan
  * Contains all the specific actions to realize for an UAV searching survivors
  */
-behavior SearchBehavior { 
+behavior SearchBehavior {
+	/** @param unexplored : the zone this UAV believes remains unexplored */
 	protected var unexplored : Geometry
 	protected val lock = new Semaphore(0)
 	protected val syn = new Object
@@ -64,12 +65,15 @@ behavior SearchBehavior {
 	}
 
 	on HelpMe {
+		// notice a survivor called for help
 		synchronized (syn) {
 			survivors.add(occurrence.survivor)
 		}
 	}
 		
 	on SurvivorSaved {
+		// notice a colleague gave informations
+		
 		synchronized (syn) {
 			survivors.addAll(occurrence.survivors)
 		}	

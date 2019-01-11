@@ -21,4 +21,10 @@ public class Base extends UAVBody {
     Vector3D _vector3D = new Vector3D(200, 0, 0);
     this.setPos(_vector3D);
   }
+  
+  public UAVBody makeUAVBody(final UUID id, final int nb) {
+    UAVBody uav = new UAVBody(id, nb);
+    uav.setPos(this.getPos());
+    return uav;
+  }
 }

@@ -3,7 +3,6 @@ package Environment
 import com.vividsolutions.jts.geom.Coordinate
 import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.Polygon
-import java.util.Random
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
 import tools.Utils
@@ -22,7 +21,6 @@ class Environment {
 	var zone : Polygon
 	@Accessors(PUBLIC_GETTER)
 	val uavs = <UUID, UAVBody>newHashMap
-	val rd = new Random
 	@Accessors(PUBLIC_GETTER)
 	var id : UUID
 	
@@ -44,7 +42,7 @@ class Environment {
 	 * creates an UAVBody for an UAVAgent 
 	 */
 	def synchronized makeUAVBody(id : UUID, nb : int){
-		val bdy = new UAVBody(id,nb)
+		val bdy = base.makeUAVBody(id,nb)
 		uavs.put(id,bdy)
 		return bdy
 	}

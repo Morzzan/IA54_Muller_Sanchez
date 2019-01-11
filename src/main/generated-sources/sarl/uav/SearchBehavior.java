@@ -49,6 +49,9 @@ import uav.UAVBody;
 @SarlElementType(20)
 @SuppressWarnings("all")
 public class SearchBehavior extends Behavior {
+  /**
+   * @param unexplored : the zone this UAV believes remains unexplored
+   */
   protected Geometry unexplored;
   
   protected final Semaphore lock = new Semaphore(0);

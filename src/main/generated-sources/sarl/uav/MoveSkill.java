@@ -109,29 +109,11 @@ public class MoveSkill extends Skill implements MoveCapacity {
   }
   
   /**
-   * @return a move component(Vector3D) allowing to split from the other neighbor UAVs
+   * @return a move component(Vector3D) allowing to split from the other neighbor UAVs if needed
    */
   @Pure
   public Vector3D separation() {
-    Vector3D vSep = new Vector3D(0, 0, 0);
-    if (((this.getCurrentPercept() != null) && (this.getCurrentPercept().around != null))) {
-      for (final UAVBody o : this.getCurrentPercept().around) {
-        {
-          Vector3D n = o.getPos().add(this.getCurrentPercept().pos.times((-1)));
-          double _norm = n.norm();
-          boolean _tripleEquals = (_norm == 0);
-          if (_tripleEquals) {
-            n = Vector3D.randomDirection();
-          }
-          Vector3D _unitarize = n.unitarize();
-          double _pow = Math.pow(n.norm(), 2);
-          double _divide = ((-100) / _pow);
-          Vector3D a = _unitarize.times(_divide);
-          vSep = vSep.add(a);
-        }
-      }
-    }
-    return vSep;
+    return new Vector3D();
   }
   
   /**

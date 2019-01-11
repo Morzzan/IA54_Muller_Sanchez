@@ -40,6 +40,9 @@ public class SwarmSearchBehavior extends SearchBehavior {
     }
   }
   
+  /**
+   * If needed, shares information with other UAVs at range
+   */
   @Override
   @Pure
   public void shareInformation(final Collection<UAVBody> around) {

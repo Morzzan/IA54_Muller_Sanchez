@@ -18,7 +18,10 @@ behavior SwarmSearchBehavior extends SearchBehavior {
 		unexplored = unexplored.intersection(occurrence.zone)
 		lock.release
 	}
-	
+
+	/** 
+	 * If needed, shares information with other UAVs at range
+	 */
 	override shareInformation(around : Collection<UAVBody>) {
 		for (uav : around) {
 			lock.acquire

@@ -11,7 +11,6 @@ import io.sarl.lang.annotation.SyntheticMember;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.UUID;
 import org.eclipse.xtend.lib.annotations.AccessorType;
 import org.eclipse.xtend.lib.annotations.Accessors;
@@ -38,8 +37,6 @@ public class Environment {
   
   @Accessors(AccessorType.PUBLIC_GETTER)
   private final HashMap<UUID, UAVBody> uavs = CollectionLiterals.<UUID, UAVBody>newHashMap();
-  
-  private final Random rd = new Random();
   
   @Accessors(AccessorType.PUBLIC_GETTER)
   private UUID id;
@@ -73,7 +70,7 @@ public class Environment {
    * creates an UAVBody for an UAVAgent
    */
   public synchronized UAVBody makeUAVBody(final UUID id, final int nb) {
-    final UAVBody bdy = new UAVBody(id, nb);
+    final UAVBody bdy = this.base.makeUAVBody(id, nb);
     this.uavs.put(id, bdy);
     return bdy;
   }

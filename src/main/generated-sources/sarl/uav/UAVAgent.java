@@ -31,6 +31,7 @@ import tools.Utils;
 import uav.InformationBehavior;
 import uav.MoveCapacity;
 import uav.MoveSkill;
+import uav.MoveWithSeparationSkill;
 import uav.SearchBehavior;
 import uav.SwarmInformationBehavior;
 import uav.SwarmSearchBehavior;
@@ -54,23 +55,25 @@ public class UAVAgent extends Agent {
   private InformationBehavior informationBehavior;
   
   private void $behaviorUnit$Initialize$0(final Initialize occurrence) {
+    Object _get = occurrence.parameters[0];
+    this.nb = (((Integer) _get)).intValue();
+    Object _get_1 = occurrence.parameters[1];
+    this.base = ((Base) _get_1);
     if (Utils.swarmInteractions) {
       SwarmSearchBehavior _swarmSearchBehavior = new SwarmSearchBehavior(this);
       this.searchBehavior = _swarmSearchBehavior;
       SwarmInformationBehavior _swarmInformationBehavior = new SwarmInformationBehavior(this);
       this.informationBehavior = _swarmInformationBehavior;
+      MoveWithSeparationSkill _moveWithSeparationSkill = new MoveWithSeparationSkill(this.base);
+      this.<MoveWithSeparationSkill>setSkill(_moveWithSeparationSkill, MoveCapacity.class);
     } else {
       SearchBehavior _searchBehavior = new SearchBehavior(this);
       this.searchBehavior = _searchBehavior;
       InformationBehavior _informationBehavior = new InformationBehavior(this);
       this.informationBehavior = _informationBehavior;
+      MoveSkill _moveSkill = new MoveSkill(this.base);
+      this.<MoveSkill>setSkill(_moveSkill, MoveCapacity.class);
     }
-    Object _get = occurrence.parameters[0];
-    this.nb = (((Integer) _get)).intValue();
-    Object _get_1 = occurrence.parameters[1];
-    this.base = ((Base) _get_1);
-    MoveSkill _moveSkill = new MoveSkill(this.base);
-    this.<MoveSkill>setSkill(_moveSkill, MoveCapacity.class);
     Object _get_2 = occurrence.parameters[2];
     this.unexplored = ((Geometry) _get_2);
     Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);

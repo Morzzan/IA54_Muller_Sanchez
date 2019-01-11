@@ -1,0 +1,27 @@
+/** 
+ * 
+ */
+package uav
+
+import tools.Vector3D
+
+/** 
+ * @author morzzan
+ * 
+ */
+skill MoveWithSeparationSkill extends MoveSkill {
+	override separation : Vector3D{
+		var vSep = new Vector3D(0, 0, 0)
+		if (currentPercept !== null && currentPercept.around !== null) {
+			for (o : currentPercept.around) {
+				var n = o.pos.add(currentPercept.pos.times(-1))
+				if (n.norm === 0) {
+					n = Vector3D.randomDirection
+				}
+				var a = n.times(-1000 / Math.pow(n.norm, 2))
+				vSep = vSep.add(a)
+			}
+		}
+		return vSep
+	}
+}

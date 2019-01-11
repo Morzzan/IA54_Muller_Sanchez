@@ -18,4 +18,10 @@ class Base extends UAVBody {
 		super(id,0)
 		this.pos = new Vector3D(200,0,0)
 	}
+
+	def makeUAVBody(id : UUID, nb : int) : UAVBody {
+		var uav = new UAVBody(id, nb)
+		uav.pos = pos
+		return uav
+	}
 }
