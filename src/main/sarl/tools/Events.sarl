@@ -1,0 +1,113 @@
+/** 
+ * 
+ */
+package tools
+
+import com.vividsolutions.jts.geom.Geometry
+import java.util.Collection
+import java.util.List
+import java.util.UUID
+import uav.UAVBody
+import view.Fx3DView
+import survivor.Survivor
+
+/** 
+ * Information event signaling the GUI is started
+ */
+event StartEvent{
+	var fx : Fx3DView
+	new(fx : Fx3DView){
+		this.fx=fx
+	}
+}
+/**
+ * Finishing event requesting every agent to commit suicide as the simulation is terminated
+ */
+event EndEvent 
+/**
+ * Registering event to the environment meaning the Agent is started.
+ */
+event RegisterEvent{
+	var nb : int
+	var agentType : Class
+	new(nb : int, agentType : Class){
+		this.nb = nb
+		this.agentType = agentType
+	}
+}
+
+/** 
+ * Carries Information about the percepts of an UAV.
+ */
+event PerceptEvent{
+	var pos = new Vector3D
+	var onZone : boolean
+	var around : List<UAVBody>
+	var speed : Vector3D
+	new(pos : Vector3D,speed : Vector3D, around : List<UAVBody> = <Vector3D> newArrayList(),onZone : boolean){
+		this.pos = pos
+		this.around = around
+		this.onZone = onZone
+		this.speed=speed
+	}
+}
+/**
+ * Carries Information about the percepts of a survivor
+ */
+event SurvivorPerceptEvent{ 
+	var around : List<UUID>
+	var survivor : Survivor
+	new(around :List<UUID>, survivor : Survivor){
+		this.around=around
+		this.survivor = survivor
+	}
+}
+/**
+ * Submission of a change of direction from an UAV
+ */
+event GoThatWay{
+	var direction : Vector3D
+	new(direction : Vector3D){
+		this.direction = direction
+	}
+}
+/**
+ * Information Event to share the explored zone with neighbor UAVS
+ */
+event ShareExploredZoneEvent{
+	var zone : Geometry
+	new(zone : Geometry){
+		this.zone = zone
+	}
+}
+/**
+ * SOS message from a Survivor to signal his presence to an UAV
+ */
+event HelpMe {
+var survivor : Survivor
+new(survivor : Survivor) {
+	this.survivor = survivor
+	}
+}
+/**
+ * Relay event to pass survivors informations to the next UAV that will carry this information to base
+ */
+event SurvivorSaved{
+	var survivors : Collection<Survivor>
+	new(survivors : Collection<Survivor>){
+		this.survivors = survivors
+	}
+}
+/**
+ * UAV internal event to request switching from InformationBeavior to SearchBehavior
+ */
+event RelayedEvent
+/**
+ * UAV internal event to request switching from SearchBehavior to InformationBehavior
+ */
+event DiscoveredEvent{
+	var survivors : Collection<Survivor>
+	new(survivors : Collection<Survivor>){
+		this.survivors = survivors
+	}
+}

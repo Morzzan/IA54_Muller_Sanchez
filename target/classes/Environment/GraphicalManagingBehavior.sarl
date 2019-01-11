@@ -1,0 +1,42 @@
+/** 
+ * 
+ */
+package Environment
+
+import io.sarl.core.Lifecycle
+import io.sarl.core.Schedules
+import tools.GoThatWay
+
+/** 
+ * @author morzzan
+ * Contains the specific actions on the Environment to perform while GUI is needed
+ */
+behavior GraphicalManagingBehavior extends ManagingBehavior{
+	uses Lifecycle, Schedules
+
+	on GoThatWay {
+		sem.acquire
+		actions.add(occurrence)
+		if (actions.size === nbuavs) {
+			sem.release
+			in(50)[runstep]
+		} else
+			sem.release
+	}
+	
+	override runstep {
+		step++
+		for (action : actions) {
+			var actorBody = env.uavs.get(action.source.UUID)
+			actorBody.accelerate(action.direction)
+		}
+		for (uav : env.uavs.values) {
+			uav.move
+		}
+		fx.updateObjects(env.uavs.values, env.survivors.values, env.base)
+		actions.clear
+		savestate
+		if(nbSurvivors == env.nbRescuedSurvivors) killMe
+		sendPercepts
+	}	
+}

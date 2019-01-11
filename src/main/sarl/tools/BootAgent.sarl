@@ -1,0 +1,44 @@
+/** 
+ * 
+ */
+package tools
+
+import Environment.EnvAgent
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import io.sarl.javafx.FxApplication
+import view.Fx3DView
+
+import static tools.Utils.*
+import static view.Fx3DView.*
+
+/** 
+ * @author morzzan
+ * The launcher agent
+ */
+agent BootAgent {
+	uses Logging, Lifecycle, DefaultContextInteractions
+
+	var nbdrones = 5
+	var nbSurvivors = 5
+	var graphical = true
+
+	on Initialize{
+		// get the parameters
+		try {
+			graphical = Boolean.parseBoolean(occurrence.parameters.get(0) as String)
+			nbdrones = Integer.parseInt(occurrence.parameters.get(1) as String)
+			nbSurvivors = Integer.parseInt(occurrence.parameters.get(2) as String)
+			Utils.swarmInteractions = Boolean.parseBoolean(occurrence.parameters.get(3) as String)
+		}catch(e : Exception){}
+		spawn(typeof(EnvAgent), nbdrones,nbSurvivors, graphical)
+		// launch GUI
+		if (graphical) {
+			Fx3DView.sp = defaultSpace
+			FxApplication.launch(Fx3DView, nbdrones.toString, nbSurvivors.toString)
+		}		
+		killMe
+	}	
+}

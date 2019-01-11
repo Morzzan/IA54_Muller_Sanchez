@@ -1,0 +1,37 @@
+/** 
+ * 
+ */
+package survivor
+
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import tools.EndEvent
+import tools.HelpMe
+import tools.RegisterEvent
+import tools.SurvivorPerceptEvent
+
+/** 
+ * @author morzzan
+ * The acting part if a survivor, manifesting a HelpMe when seeing an UAV
+ */
+agent SurvivorAgent {
+	uses Logging, DefaultContextInteractions, Lifecycle
+	var nb : int
+
+	on Initialize {
+		nb = occurrence.parameters.get(0) as Integer
+		loggingName = "Survivor "+nb
+		emit(new RegisterEvent(nb,typeof(SurvivorAgent)))
+		info("Survivor in Danger")
+	}
+	on SurvivorPerceptEvent{
+		emit(new HelpMe(occurrence.survivor))[occurrence.around.contains(it.UUID)]
+		killMe
+	}
+
+	on EndEvent {
+		killMe
+	} 
+}

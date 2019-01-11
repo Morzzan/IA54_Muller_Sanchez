@@ -14,21 +14,22 @@ import javafx.scene.Scene
 import javafx.scene.paint.Color
 import javafx.scene.paint.PhongMaterial
 import javafx.scene.shape.Box
+import javafx.scene.shape.Circle
 import javafx.scene.shape.DrawMode
 import javafx.scene.shape.Shape3D
 import javafx.scene.shape.Sphere
-import javafx.scene.shape.Circle
 import javafx.stage.Stage
-import model.StartEvent
-import model.Survivor
-import model.UAVBody
 import org.eclipse.xtend.lib.annotations.Accessors
-import model.Base
-import model.Utils
+import tools.StartEvent
+import tools.Utils
+import uav.UAVBody
+import survivor.Survivor
+import base.Base
 
 /** 
  * @author morzzan
- * 
+ * GUI class
+ * Displays the current state of the simulation
  */
 class Fx3DView extends FxApplication {
 	static public var sp : EventSpace

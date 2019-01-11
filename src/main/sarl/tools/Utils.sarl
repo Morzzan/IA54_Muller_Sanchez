@@ -1,0 +1,33 @@
+/** 
+ * 
+ */
+package tools
+
+import com.vividsolutions.jts.shape.random.RandomPointsBuilder
+import com.vividsolutions.jts.geom.Geometry
+import com.vividsolutions.jts.geom.Coordinate
+import com.vividsolutions.jts.util.GeometricShapeFactory
+
+/** 
+ * @author morzzan
+ * Used to carry configuration and provide utilitary functions
+ */
+class Utils {
+	public static var perceptRadius = 50
+	public static var swarmInteractions = true
+
+	static def getRandomPositionInZone(zone : Geometry){
+		var factory = new RandomPointsBuilder
+		factory.extent = zone
+		factory.numPoints = 1
+		var p = factory.geometry.coordinate
+		return new Vector3D(p.x, p.y, 0)
+	}
+	static def createCircle(radius : double, center : Coordinate) {
+		val shapeFactory = new GeometricShapeFactory;
+		shapeFactory.centre = new Coordinate(center.x, center.y)
+		shapeFactory.numPoints = 16
+		shapeFactory.size = radius * 2
+		return shapeFactory.createCircle
+	}
+}

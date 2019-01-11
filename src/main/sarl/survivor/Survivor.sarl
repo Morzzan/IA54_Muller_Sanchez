@@ -1,0 +1,31 @@
+/** 
+ * 
+ */
+package survivor
+
+import java.util.UUID
+import org.eclipse.xtend.lib.annotations.Accessors
+import tools.PerceptEvent
+import tools.SituatedObject
+import tools.Vector3D
+
+/** 
+ * @author morzzan
+ * This class represents the body of a survivor.
+ * The survivor cannot directly access it as it is part of the environment.
+ * The survivor has to wait for @see PerceptEvent to get informations.
+ */
+class Survivor extends SituatedObject {
+	@Accessors(PUBLIC_GETTER)
+	var id : UUID
+	@Accessors(PUBLIC_GETTER)
+	var nb : int
+	@Accessors(PUBLIC_GETTER, PUBLIC_SETTER)
+	var rescued : boolean = false
+	
+	new(id : UUID, nb : int, pos : Vector3D){
+		this.id = id
+		this.nb = nb
+		this.pos = pos
+	}
+}

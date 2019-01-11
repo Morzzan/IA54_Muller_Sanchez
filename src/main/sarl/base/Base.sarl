@@ -1,0 +1,21 @@
+/** 
+ * 
+ */
+package base
+
+import java.util.UUID
+import tools.Vector3D
+import uav.UAVBody
+
+/** 
+ * @author morzzan
+ * The base is the interface for the UAVS to communicate with the outside world
+ * In this case, all information found about the survivors must transit through the base
+ * The base would then call for further first-aiders if needed
+ */
+class Base extends UAVBody {
+	new(id : UUID){
+		super(id,0)
+		this.pos = new Vector3D(200,0,0)
+	}
+}

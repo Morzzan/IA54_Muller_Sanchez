@@ -1,0 +1,29 @@
+/** 
+ * 
+ */
+package uav
+
+import io.sarl.core.DefaultContextInteractions
+import java.util.Collection
+import tools.ShareExploredZoneEvent
+
+/** 
+ * @author morzzan
+ * Contains all the specific actions to realize for a swarmed UAV searching survivors
+ */
+behavior SwarmSearchBehavior extends SearchBehavior {
+	uses DefaultContextInteractions
+	on ShareExploredZoneEvent {
+		lock.acquire
+		unexplored = unexplored.intersection(occurrence.zone)
+		lock.release
+	}
+	
+	override shareInformation(around : Collection<UAVBody>) {
+		for (uav : around) {
+			lock.acquire
+			emit(new ShareExploredZoneEvent(unexplored))[it.UUID == uav.id]
+			lock.release
+		}
+	}
+}

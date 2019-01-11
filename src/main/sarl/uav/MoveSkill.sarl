@@ -1,0 +1,96 @@
+/** 
+ * 
+ */
+package uav
+
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Logging
+import java.util.concurrent.Semaphore
+import tools.GoThatWay
+import tools.PerceptEvent
+import tools.Vector3D
+import base.Base
+
+/** 
+ * @author morzzan
+ * Describes the way an UAV Moves
+ */
+skill MoveSkill implements MoveCapacity { 
+	uses DefaultContextInteractions, Logging
+	val lock = new Semaphore(1)
+	var base : Base
+	var percept : PerceptEvent = new PerceptEvent(new Vector3D,new Vector3D,newArrayList,true)
+	
+	new(base : Base){
+		this.base = base
+	}
+	/**
+	 * threadsafe
+	 * @return the last perceptEvent recieved
+	 */
+	override getCurrentPercept : PerceptEvent{
+		lock.acquire
+		try return new PerceptEvent(percept.pos,percept.speed, percept.around,percept.onZone)
+		finally lock.release
+	}
+	/**
+	 * updates current perceptEvent
+	 */
+	override addPercept(p : PerceptEvent){
+		lock.acquire
+		percept=p
+		lock.release
+	}
+	/**
+	 * request to accelerate in the specified direction
+	 */
+	override move(direction : Vector3D) {
+		var d = direction.add(separation)
+		emit(new GoThatWay(d.stayOnZone))
+	}
+	/**
+	 * request to move in a random direction
+	 */
+	override moveRandomly {
+		move(Vector3D.randomDirection())
+	}
+	/**
+	 * request to move towards the given position
+	 */
+	override moveTo(position : Vector3D){
+		move(position.substract(currentPercept.pos))
+	}
+	/**
+	 * request to return to the base
+	 */
+	override moveToBase{
+		moveTo(base.pos)
+	}
+	/**
+	 * @return a move component(Vector3D) allowing to split from the other neighbor UAVs
+	 */
+	def separation {
+		var vSep = new Vector3D(0, 0, 0)
+		if (currentPercept !== null && currentPercept.around !== null) {
+			for (o : currentPercept.around) {
+				var n = o.pos.add(currentPercept.pos.times(-1))
+				if (n.norm === 0) {
+					n = Vector3D.randomDirection
+				}
+				var a = n.unitarize.times(-100 / Math.pow(n.norm, 2))
+				vSep = vSep.add(a)
+			}
+		}
+		return vSep
+	}
+	/**
+	 * @return an adapted direction to move to preventing zone leaving
+	 */
+	def stayOnZone(direction : Vector3D) {
+		if(currentPercept == null || currentPercept.onZone) return direction
+		else{
+			info("Not On Zone Anymore")
+			return currentPercept.pos.times(-1)
+		}
+	}
+}

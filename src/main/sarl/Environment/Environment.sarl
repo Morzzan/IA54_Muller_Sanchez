@@ -1,0 +1,97 @@
+package Environment
+
+import com.vividsolutions.jts.geom.Coordinate
+import com.vividsolutions.jts.geom.GeometryFactory
+import com.vividsolutions.jts.geom.Polygon
+import java.util.Random
+import java.util.UUID
+import org.eclipse.xtend.lib.annotations.Accessors
+import tools.Utils
+import uav.UAVBody
+import survivor.Survivor
+import base.Base
+
+/** 
+ * @author morzzan
+ * The environment provides information and allows to manipulate the bodies
+ */
+class Environment { 
+	@Accessors(PUBLIC_GETTER,PUBLIC_SETTER)
+	var base : Base
+	@Accessors(PUBLIC_GETTER)
+	var zone : Polygon
+	@Accessors(PUBLIC_GETTER)
+	val uavs = <UUID, UAVBody>newHashMap
+	val rd = new Random
+	@Accessors(PUBLIC_GETTER)
+	var id : UUID
+	
+	@Accessors(PUBLIC_GETTER)
+	val survivors = <UUID,Survivor>newHashMap
+	
+	new (id : UUID){
+		zone = Utils.createCircle(200, new Coordinate(0, 0))
+		this.id = id
+	}
+	/**
+	 * determines if the given UAV is in the search zone
+	 */
+	def isOnZone(uav : UAVBody){
+		var factory = new GeometryFactory
+		zone.intersects(factory.createPoint(new Coordinate(uav.pos.x, uav.pos.y)))
+	}
+	/**
+	 * creates an UAVBody for an UAVAgent 
+	 */
+	def synchronized makeUAVBody(id : UUID, nb : int){
+		val bdy = new UAVBody(id,nb)
+		uavs.put(id,bdy)
+		return bdy
+	}
+	/**
+	 * creates a Survivor body for a survivor
+	 */
+	def synchronized makeSurvivorBody(id : UUID, nb : int) {
+		val bdy = new Survivor(id,nb,Utils.getRandomPositionInZone(zone))
+		survivors.put(id, bdy)
+		return bdy
+	}
+	/**
+	 * @return The neighbor UAVBodies that are at range for perception
+	 */
+	def getNeighbors(uav : UAVBody) {
+		var around = <UAVBody>newArrayList
+		for (n : uavs.values) {
+			if(n.pos.substract(uav.pos).norm < Utils.perceptRadius && n != uav) around.add(n)
+		}
+		if(base.pos.substract(uav.pos).norm < Utils.perceptRadius) around.add(base)
+		return around
+	}
+	/** 
+	 * @return The UAVs' IDs that are at range for transmission
+	 */
+	def getSeenUAVs(me : Survivor) {
+		var around = <UUID>newArrayList
+		for (n : uavs.values) {
+			if(n.pos.add(me.pos.times(-1)).norm < Utils.perceptRadius) around.add(n.id)
+		}
+		return around
+	}
+	/**
+	 * Marks a survivor as saved as the base knows his position
+	 */
+	def saveSurvivor(survivorID : UUID){
+		var survivor = survivors.get(survivorID)
+		survivor.rescued=true
+	}
+	/**
+	 * @return The number of rescued survivors
+	 */
+	def getNbRescuedSurvivors{
+		var nb = 0
+		for(survivor : survivors.values){
+			if(survivor.rescued)nb++
+		}
+		return nb
+	}
+}

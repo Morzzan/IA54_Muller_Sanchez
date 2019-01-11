@@ -1,0 +1,20 @@
+/** 
+ * 
+ */
+package uav
+
+import tools.PerceptEvent
+import tools.Vector3D
+
+/** 
+ * @author morzzan
+ * Describes the actions relative to movement an UAV can perform
+ */
+capacity MoveCapacity {
+	def move(direction : Vector3D)
+	def moveRandomly
+	def moveTo(position : Vector3D)
+	def getCurrentPercept : PerceptEvent
+	def addPercept(p : PerceptEvent)
+	def moveToBase
+}

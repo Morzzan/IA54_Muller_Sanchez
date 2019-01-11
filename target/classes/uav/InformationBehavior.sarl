@@ -1,0 +1,72 @@
+/** 
+ * 
+ */
+package uav
+
+import io.sarl.core.Behaviors
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import java.util.Collection
+import tools.HelpMe
+import tools.PerceptEvent
+import tools.RelayedEvent
+import tools.SurvivorSaved
+import tools.Utils
+import survivor.Survivor
+import base.Base
+
+/** 
+ * @author morzzan
+ * Contains all the specific actions to realize for an UAV 
+ * trying to communicate with the base to share information about survivors
+ */
+behavior InformationBehavior { 
+	uses MoveCapacity, DefaultContextInteractions, Behaviors
+	protected val survivors = <Survivor>newArrayList
+	protected var base : Base
+
+	on Initialize {
+		synchronized (survivors) {
+			survivors.addAll(occurrence.parameters.get(0) as Collection<Survivor>)
+			base = occurrence.parameters.get(1) as Base
+		}		
+	}
+	
+	on HelpMe{
+		// notice a survivor called for help
+		synchronized (survivors) {
+			survivors.add(occurrence.survivor)
+		}		
+	}
+	
+	on PerceptEvent {
+		// notice a colleague gave informations
+		addPercept(occurrence)
+		relayInformations
+	}
+	/**
+	 * Determines if this UAV must continue moving towards base or 
+	 * transmit information to a better positioned UAV before returning to search
+	 */
+	def relayInformations{
+		val currentPercept = currentPercept
+		val closest = currentPercept.getClosestToBaseFromMe	
+		if (closest === null)moveToBase	
+		else{
+			val s = <Survivor>newArrayList
+			synchronized (survivors) {
+					s.addAll(survivors)
+				}
+			emit(new SurvivorSaved(s))[it.UUID == closest.id]
+			emit(new RelayedEvent)
+			unregisterBehavior(this)				
+			}				
+	}
+	/** 
+ 	* @return The base body if at range
+ 	*/
+	def getClosestToBaseFromMe(currentPercept : PerceptEvent) : UAVBody {
+		if (currentPercept.pos.substract(base.pos).norm < Utils.perceptRadius)return base
+		else return null 
+	}
+}

@@ -1,5 +1,6 @@
 package view;
 
+import base.Base;
 import io.sarl.javafx.FxApplication;
 import io.sarl.lang.annotation.SarlElementType;
 import io.sarl.lang.annotation.SarlSpecification;
@@ -20,19 +21,20 @@ import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
 import javafx.stage.Stage;
-import model.Base;
-import model.StartEvent;
-import model.Survivor;
-import model.UAVBody;
-import model.Utils;
 import org.eclipse.xtend.lib.annotations.AccessorType;
 import org.eclipse.xtend.lib.annotations.Accessors;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Pure;
+import survivor.Survivor;
+import tools.StartEvent;
+import tools.Utils;
+import uav.UAVBody;
 import view.MyController;
 
 /**
  * @author morzzan
+ * GUI class
+ * Displays the current state of the simulation
  */
 @SarlSpecification("0.8")
 @SarlElementType(10)

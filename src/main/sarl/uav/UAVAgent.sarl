@@ -1,0 +1,65 @@
+/** 
+ * 
+ */
+package uav
+
+import com.vividsolutions.jts.geom.Geometry
+import io.sarl.core.Behaviors
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import tools.DiscoveredEvent
+import tools.EndEvent
+import tools.RegisterEvent
+import tools.RelayedEvent
+import tools.Utils
+import base.Base
+
+/** 
+ * @author morzzan
+ * The Decision-maker part of an UAV
+ */
+agent UAVAgent {
+	uses Logging, DefaultContextInteractions, Lifecycle, Behaviors, MoveCapacity
+	var nb : int
+	var base : Base
+	var unexplored : Geometry
+	var searchBehavior : SearchBehavior
+	var informationBehavior : InformationBehavior
+	
+	
+	on Initialize {
+		if(Utils.swarmInteractions){
+			searchBehavior = new SwarmSearchBehavior(this)
+			informationBehavior = new SwarmInformationBehavior(this)
+		}
+		else {
+			searchBehavior = new SearchBehavior(this)
+			informationBehavior = new InformationBehavior(this)
+		}
+		nb = occurrence.parameters.get(0) as Integer
+		base = occurrence.parameters.get(1) as Base
+		setSkill(new MoveSkill(base), MoveCapacity)
+		unexplored = occurrence.parameters.get(2) as Geometry		
+		loggingName = " Drone " + nb.toString		
+		registerBehavior(searchBehavior,unexplored)
+		info("The UAV was started.")
+		emit(new RegisterEvent(nb, typeof(UAVAgent)))
+	}
+
+	on EndEvent{	
+		killMe
+	} 
+	
+	on DiscoveredEvent {
+		registerBehavior(informationBehavior, occurrence.survivors, base)
+		moveTo(base.pos)
+	}
+	
+	on RelayedEvent{
+		registerBehavior(searchBehavior, unexplored)
+		moveRandomly
+	}
+}
+

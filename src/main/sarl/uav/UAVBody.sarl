@@ -1,0 +1,48 @@
+package uav
+
+import java.util.UUID
+import org.eclipse.xtend.lib.annotations.Accessors
+import tools.PerceptEvent
+import tools.SituatedObject
+import tools.Vector3D
+
+/** 
+ * 
+ */
+
+/** 
+ * @author morzzan
+ * This class represents the body of an UAV.
+ * The UAV cannot directly access it as it is part of the environment.
+ * The UAV has to use @see MoveCapacity to move his body and wait for @see PerceptEvent to get informations about it.
+ */
+class UAVBody extends SituatedObject{	
+	val maxSpeed = 3
+	@Accessors(PUBLIC_GETTER)
+	var id : UUID
+
+	@Accessors(PUBLIC_GETTER)
+	var speed = new Vector3D(0, 0, 0)
+
+	@Accessors(PUBLIC_GETTER)
+	var nb : int
+	
+	new(id : UUID, nb:int){
+		this.id=id 	
+		this.nb = nb	
+	}
+	/**
+	 * Accelerates UAV to change speed and movement direction
+	 */
+	def accelerate(a : Vector3D){
+		var v = speed.add(a)
+		if(v.norm < maxSpeed) speed = v
+		else speed = v.unitarize.times(maxSpeed)
+	}
+	/**
+	 * Applies speed to move the UAV
+	 */
+	def move{
+		pos = pos.add(speed)
+	}
+}

@@ -1,0 +1,39 @@
+/** 
+ * 
+ */
+package uav
+
+import tools.PerceptEvent
+import tools.SurvivorSaved
+
+/** 
+ * @author morzzan
+ * Behavior specific to swarmed UAVS trying to communicate with the base to share information about survivors
+ */
+behavior SwarmInformationBehavior extends InformationBehavior {
+
+	on SurvivorSaved {
+		synchronized (survivors) {
+			survivors.addAll(occurrence.survivors)
+		}
+	}
+	/** 
+	 * @return The UAV body in candidates closest to the base if it exists, null if it doesn't
+	 */
+	override getClosestToBaseFromMe(currentPercept : PerceptEvent) : UAVBody {
+		var closest = currentPercept.pos
+		var closestUAV : UAVBody = null
+		var minDist = closest.substract(base.pos).norm
+		if (!currentPercept.around.empty) {
+			for (uav : currentPercept.around) {
+				val dist = uav.pos.substract(base.pos).norm
+				if (dist < minDist) {
+					closestUAV = uav
+					minDist = dist
+					closest = uav.pos
+				}
+			}
+			return closestUAV
+		}
+	}
+}

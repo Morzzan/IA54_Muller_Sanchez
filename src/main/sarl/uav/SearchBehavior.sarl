@@ -1,0 +1,110 @@
+/** 
+ * 
+ */
+package uav
+
+import com.vividsolutions.jts.geom.Coordinate
+import com.vividsolutions.jts.geom.Geometry
+import com.vividsolutions.jts.geom.GeometryFactory
+import com.vividsolutions.jts.operation.distance.DistanceOp
+import io.sarl.core.Behaviors
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import java.util.Collection
+import java.util.concurrent.Semaphore
+import tools.DiscoveredEvent
+import tools.HelpMe
+import tools.PerceptEvent
+import tools.SurvivorSaved
+import tools.Utils
+import tools.Vector3D
+import survivor.Survivor
+
+/** 
+ * @author morzzan
+ * Contains all the specific actions to realize for an UAV searching survivors
+ */
+behavior SearchBehavior { 
+	protected var unexplored : Geometry
+	protected val lock = new Semaphore(0)
+	protected val syn = new Object
+	protected var survivors = <Survivor>newArrayList
+	uses Logging, MoveCapacity, DefaultContextInteractions, Behaviors
+
+	on Initialize {
+		unexplored = occurrence.parameters.get(0) as Geometry
+		lock.release 
+	}
+
+	on PerceptEvent {
+		// when receiving the percepts
+		addPercept(occurrence)
+		synchronized (syn) {
+			// if no survivor has been found, continue searching
+			if (survivors.empty) {
+				updateUnexploredZone
+				shareInformation(occurrence.around)
+				lock.acquire
+				if (unexplored.area > 0) {
+					lock.release
+					moveTo(makeExplorationStrategy)
+				// should never happen
+				} else {
+					lock.release
+					moveRandomly
+				}
+			// if a survivor was found, switch to information mode
+			} else {	
+				emit(new DiscoveredEvent(survivors.clone as Collection<Survivor>))[it.UUID == this.owner.ID]
+				survivors.clear
+				unregisterBehavior(this)
+			}	
+		}
+	}
+
+	on HelpMe {
+		synchronized (syn) {
+			survivors.add(occurrence.survivor)
+		}
+	}
+		
+	on SurvivorSaved {
+		synchronized (syn) {
+			survivors.addAll(occurrence.survivors)
+		}	
+	}
+	/**
+	 * updates the Agent's beliefs of the explored zone
+	 */
+	def updateUnexploredZone {
+		val pos = currentPercept.pos
+		val myGeom = Utils.createCircle(Utils.perceptRadius, new Coordinate(pos.x, pos.y))
+		lock.acquire
+		unexplored = unexplored.difference(myGeom)
+		lock.release
+	}
+	/**
+	 * @return A strategic direction to go searching given the zone currently explored
+	 */
+	def makeExplorationStrategy {
+		val currentPercept = currentPercept
+		var r : Vector3D
+		val p = new GeometryFactory().createPoint((currentPercept.pos.add(currentPercept.speed).toPlaneCoordinate))
+		try {
+			lock.acquire
+			val op = new DistanceOp(unexplored, p)
+			r = new Vector3D(op.nearestPoints.get(0))
+			lock.release
+		} catch (e : Exception) {
+			r = new Vector3D
+		}
+		return r
+	}
+	/**
+	 * If needed, shares information with other UAVs at range
+	 */
+	def shareInformation(around : Collection<UAVBody>) {
+		// do nothing
+	}
+}
